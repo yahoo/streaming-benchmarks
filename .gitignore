@@ -1,0 +1,5 @@
+.DS_Store
+target
+dependency-reduced-pom.xml
+download-cache/**
+download-cache
