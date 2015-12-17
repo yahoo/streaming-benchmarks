@@ -13,6 +13,7 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple7;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer082;
@@ -29,8 +30,8 @@ import java.util.*;
  */
 public class AdvertisingTopologyNative {
 
-
     private static final Logger LOG = LoggerFactory.getLogger(AdvertisingTopologyNative.class);
+
 
     public static void main(final String[] args) throws Exception {
 
@@ -39,48 +40,60 @@ public class AdvertisingTopologyNative {
         Map conf = Utils.findAndReadConfigFile(parameterTool.getRequired("confPath"), true);
         int kafkaPartitions = ((Number)conf.get("kafka.partitions")).intValue();
         int hosts = ((Number)conf.get("process.hosts")).intValue();
+        int cores = ((Number)conf.get("process.cores")).intValue();
 
         ParameterTool flinkBenchmarkParams = ParameterTool.fromMap(getFlinkConfs(conf));
 
         LOG.info("conf: {}", conf);
-
-        StreamExecutionEnvironment env =
-                StreamExecutionEnvironment.getExecutionEnvironment();
-
         LOG.info("Parameters used: {}", flinkBenchmarkParams.toMap());
 
+        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.getConfig().setGlobalJobParameters(flinkBenchmarkParams);
 
+
+
+		// Set the buffer timeout (default 100)
+        // Lowering the timeout will lead to lower latencies, but will eventually reduce throughput.
+        env.setBufferTimeout(flinkBenchmarkParams.getLong("flink.buffer-timeout", 100));
+
+
+        if(flinkBenchmarkParams.has("flink.checkpoint-interval")) {
+            // enable checkpointing for fault tolerance
+            env.enableCheckpointing(flinkBenchmarkParams.getLong("flink.checkpoint-interval", 1000));
+        }
+        // set default parallelism for all operators (recommended value: number of available worker CPU cores in the cluster (hosts * cores))
+        env.setParallelism(hosts * cores);
+
         DataStream<String> messageStream = env
-                .addSource(new FlinkKafkaConsumer082(
+                .addSource(new FlinkKafkaConsumer082<String>(
                         flinkBenchmarkParams.getRequired("topic"),
                         new SimpleStringSchema(),
-                        flinkBenchmarkParams.getProperties())).setParallelism(Math.min(hosts, kafkaPartitions));
+                        flinkBenchmarkParams.getProperties())).setParallelism(Math.min(hosts * cores, kafkaPartitions));
 
-        DataStream<Tuple7<String, String, String, String, String, String, String>> messageStream2 = messageStream.flatMap(new DeserializeBolt()).setParallelism(hosts);
+        messageStream
+                // Parse the String as JSON
+                .flatMap(new DeserializeBolt())
 
-        DataStream<Tuple7<String, String, String, String, String, String, String>> messageStream3 = messageStream2.filter(new EventFilterBolt()).setParallelism(hosts);
+                //Filter the records if event type is "view"
+                .filter(new EventFilterBolt())
 
-        DataStream<Tuple2<String, String>> messageStream4 = messageStream3.<Tuple2<String, String>>project(2, 5).setParallelism(hosts);
+                // project the event
+                .<Tuple2<String, String>>project(2, 5)
 
-        DataStream<Tuple3<String, String, String>> messageStream5 = messageStream4.flatMap(new RedisJoinBolt())
-                .setParallelism(hosts)
-                .keyBy(0);
+                // perform join with redis data
+                .flatMap(new RedisJoinBolt())
 
-        messageStream5.flatMap(new CampaignProcessor())
-                .setParallelism(hosts);
+                // process campaign
+                .keyBy(0)
+                .flatMap(new CampaignProcessor());
 
-        messageStream.print();
-        messageStream2.print();
-        messageStream3.print();
-        messageStream4.print();
-        messageStream5.print();
 
         env.execute();
     }
 
     public static class DeserializeBolt implements
             FlatMapFunction<String, Tuple7<String, String, String, String, String, String, String>> {
+
         @Override
         public void flatMap(String input, Collector<Tuple7<String, String, String, String, String, String, String>> out)
                 throws Exception {
@@ -154,8 +167,8 @@ public class AdvertisingTopologyNative {
         @Override
         public void flatMap(Tuple3<String, String, String> tuple, Collector<String> out) throws Exception {
 
-            String campaign_id = (String) tuple.getField(0);
-            String event_time =  (String) tuple.getField(2);
+            String campaign_id = tuple.getField(0);
+            String event_time =  tuple.getField(2);
             this.campaignProcessorCommon.execute(campaign_id, event_time);
         }
     }
