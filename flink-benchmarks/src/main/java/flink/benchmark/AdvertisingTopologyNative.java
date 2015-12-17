@@ -50,12 +50,9 @@ public class AdvertisingTopologyNative {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.getConfig().setGlobalJobParameters(flinkBenchmarkParams);
 
-
-
 		// Set the buffer timeout (default 100)
         // Lowering the timeout will lead to lower latencies, but will eventually reduce throughput.
         env.setBufferTimeout(flinkBenchmarkParams.getLong("flink.buffer-timeout", 100));
-
 
         if(flinkBenchmarkParams.has("flink.checkpoint-interval")) {
             // enable checkpointing for fault tolerance
@@ -71,6 +68,7 @@ public class AdvertisingTopologyNative {
                         flinkBenchmarkParams.getProperties())).setParallelism(Math.min(hosts * cores, kafkaPartitions));
 
         messageStream
+                .rebalance()
                 // Parse the String as JSON
                 .flatMap(new DeserializeBolt())
 
