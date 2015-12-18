@@ -215,6 +215,10 @@ run() {
   then
     "$STORM_DIR/bin/storm" jar ./storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTopology test-topo -conf $CONF_FILE
     sleep 15
+  elif [ "START_TRIDENT_TOPOLOGY" = "$OPERATION" ];
+  then
+    "$STORM_DIR/bin/storm" jar ./storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTridentTopology test-topo -conf $CONF_FILE
+    sleep 15
   elif [ "STOP_STORM_TOPOLOGY" = "$OPERATION" ];
   then
     "$STORM_DIR/bin/storm" kill -w 0 test-topo || true
@@ -247,6 +251,21 @@ run() {
     run "START_KAFKA"
     run "START_STORM"
     run "START_STORM_TOPOLOGY"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_STORM_TOPOLOGY"
+    run "STOP_STORM"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
+  elif [ "TRIDENT_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_STORM"
+    run "START_TRIDENT_TOPOLOGY"
     run "START_LOAD"
     sleep $TEST_TIME
     run "STOP_LOAD"
@@ -321,6 +340,7 @@ run() {
     echo "STOP_SPARK: kill spark processes"
     echo 
     echo "START_STORM_TOPOLOGY: run the storm test topology"
+    echo "START_TRIDENT_TOPOLOGY: run the storm test topology"
     echo "STOP_STORM_TOPOLOGY: kill the storm test topology"
     echo "START_FLINK_PROCESSING: run the flink test processing"
     echo "STOP_FLINK_PROCESSSING: kill the flink test processing"
