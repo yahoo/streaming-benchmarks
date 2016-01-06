@@ -18,12 +18,14 @@ SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"4"}
 STORM_VERSION=${STORM_VERSION:-"0.10.0"}
 FLINK_VERSION=${FLINK_VERSION:-"0.10.1"}
 SPARK_VERSION=${SPARK_VERSION:-"1.5.1"}
+GEARPUMP_VERSION=${GEARPUMP_VERSION:-"0.7.5"}
 
 STORM_DIR="apache-storm-$STORM_VERSION"
 REDIS_DIR="redis-$REDIS_VERSION"
 KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
 FLINK_DIR="flink-$FLINK_VERSION"
 SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
+GEARPUMP_DIR="gearpump-$SCALA_BIN_VERSION-$GEARPUMP_VERSION"
 
 #Get one of the closet apache mirrors
 APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
@@ -150,6 +152,10 @@ run() {
     SPARK_FILE="$SPARK_DIR.tgz"
     fetch_untar_file "$SPARK_FILE" "$APACHE_MIRROR/spark/spark-$SPARK_VERSION/$SPARK_FILE"
 
+    #Fetch Gearpump
+    GEARPUMP_FILE="$GEARPUMP_DIR.tar.gz"
+    fetch_untar_file "$GEARPUMP_FILE" "https://github.com/gearpump/gearpump/releases/download/$GEARPUMP_VERSION/$GEARPUMP_FILE"
+
   elif [ "START_ZK" = "$OPERATION" ];
   then
     start_if_needed dev_zookeeper ZooKeeper 10 "$STORM_DIR/bin/storm" dev-zookeeper
@@ -203,6 +209,20 @@ run() {
     stop_if_needed org.apache.spark.deploy.master.Master SparkMaster
     stop_if_needed org.apache.spark.deploy.worker.Worker SparkSlave
     sleep 3
+
+  elif [ "START_GEARPUMP" = "$OPERATION" ];
+  then
+    start_if_needed io.gearpump.cluster.main.Master GearpumpMaster 3 $GEARPUMP_DIR/bin/master -ip 127.0.0.1 -port 3000
+    start_if_needed io.gearpump.cluster.main.Worker GearpumpWorker 3 $GEARPUMP_DIR/bin/worker
+    start_if_needed io.gearpump.services.main.Services GearpumpDashboard 3 $GEARPUMP_DIR/bin/services
+    sleep 3
+  elif [ "STOP_GEARPUMP" = "$OPERATION" ];
+  then
+    stop_if_needed io.gearpump.services.main.Services GearpumpDashboard
+    stop_if_needed io.gearpump.cluster.main.Worker GearpumpWorker
+    stop_if_needed io.gearpump.cluster.main.Master GearpumpMaster
+    sleep 3
+
   elif [ "START_LOAD" = "$OPERATION" ];
   then
     cd data
@@ -214,6 +234,7 @@ run() {
     cd data
     $LEIN run -g --configPath ../$CONF_FILE || true
     cd ..
+
   elif [ "START_STORM_TOPOLOGY" = "$OPERATION" ];
   then
     "$STORM_DIR/bin/storm" jar ./storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTopology test-topo -conf $CONF_FILE
@@ -222,6 +243,7 @@ run() {
   then
     "$STORM_DIR/bin/storm" kill -w 0 test-topo || true
     sleep 10
+
   elif [ "START_SPARK_PROCESSING" = "$OPERATION" ];
   then
     "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.KafkaRedisAdvertisingStream ./spark-benchmarks/target/spark-benchmarks-0.1.0.jar "$CONF_FILE" &
@@ -229,6 +251,7 @@ run() {
   elif [ "STOP_SPARK_PROCESSING" = "$OPERATION" ];
   then
     stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"
+
   elif [ "START_FLINK_PROCESSING" = "$OPERATION" ];
   then
     "$FLINK_DIR/bin/flink" run ./flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE &
@@ -243,6 +266,22 @@ run() {
       "$FLINK_DIR/bin/flink" cancel $FLINK_ID
       sleep 3
     fi
+
+  elif [ "START_GEARPUMP_APP" = "$OPERATION" ];
+  then
+    "$GEARPUMP_DIR/bin/gear" app -jar ./gearpump-benchmarks/target/gearpump-benchmarks-0.1.0.jar gearpump.benchmark.Advertising $CONF_FILE &
+    sleep 5
+  elif [ "STOP_GEARPUMP_APP" = "$OPERATION" ];
+  then
+    APP_ID=`"$GEARPUMP_DIR/bin/gear" info | grep "application:" | awk -F ',' '{print $1}' | awk '{print $2}'`
+    if [ "$APP_ID" == "" ];
+	then
+	  echo "Could not find Gearpump application to kill"
+    else
+      "$GEARPUMP_DIR/bin/gear" kill -appid $APP_ID
+      sleep 5
+    fi
+
   elif [ "STORM_TEST" = "$OPERATION" ];
   then
     run "START_ZK"
@@ -288,6 +327,21 @@ run() {
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
+  elif [ "GEARPUMP_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_GEARPUMP"
+    run "START_GEARPUMP_APP"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_GEARPUMP_APP"
+    run "STOP_GEARPUMP"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
   elif [ "STOP_ALL" = "$OPERATION" ];
   then
     run "STOP_LOAD"
@@ -297,6 +351,8 @@ run() {
     run "STOP_FLINK"
     run "STOP_STORM_TOPOLOGY"
     run "STOP_STORM"
+    run "STOP_GEARPUMP_APP"
+    run "STOP_GEARPUMP"
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
@@ -322,6 +378,8 @@ run() {
     echo "STOP_FLINK: kill flink processes"
     echo "START_SPARK: run spark processes"
     echo "STOP_SPARK: kill spark processes"
+    echo "START_GEARPUMP: run gearpump processes"
+    echo "STOP_GEARPUMP: kill gearpump processes"
     echo 
     echo "START_STORM_TOPOLOGY: run the storm test topology"
     echo "STOP_STORM_TOPOLOGY: kill the storm test topology"
@@ -329,10 +387,13 @@ run() {
     echo "STOP_FLINK_PROCESSSING: kill the flink test processing"
     echo "START_SPARK_PROCESSING: run the spark test processing"
     echo "STOP_SPARK_PROCESSSING: kill the spark test processing"
+    echo "START_GEARPUMP_PROCESSING: run the gearpump test processing"
+    echo "STOP_GEARPUMP_PROCESSSING: kill the gearpump test processing"
     echo
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
     echo "SPARK_TEST: run spark test (assumes SETUP is done)"
+    echo "GEARPUMP_TEST: run gearpump test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
     echo
     echo "HELP: print out this message"

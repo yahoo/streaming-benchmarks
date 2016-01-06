@@ -12,6 +12,20 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
     <name>yahoo-low-latency-bechmarks</name>
     <version>0.1.0</version>
 
+    <repositories>
+        <repository>
+            <id>releases-oss.sonatype.org</id>
+            <name>Sonatype Releases Repository</name>
+            <url>http://oss.sonatype.org/content/repositories/releases/</url>
+        </repository>
+
+        <repository>
+            <id>gearpump-shaded-repo</id>
+            <name>Vincent at Bintray</name>
+            <url>http://dl.bintray.com/fvunicorn/maven</url>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -19,6 +33,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <kafka.version>0.8.2.1</kafka.version>
         <flink.version>0.10.1</flink.version>
         <storm.version>0.10.0</storm.version>
+        <gearpump.version>0.7.5</gearpump.version>
         <scala.binary.version>2.10</scala.binary.version>
         <scala.version>2.10.4</scala.version>
         <json.version>20141113</json.version>
@@ -64,6 +79,21 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-kafka</artifactId>
                 <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.intel-hadoop</groupId>
+                <artifactId>gearpump-core_${scala.binary.version}</artifactId>
+                <version>${gearpump.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.intel-hadoop</groupId>
+                <artifactId>gearpump-streaming_${scala.binary.version}</artifactId>
+                <version>${gearpump.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.intel-hadoop</groupId>
+                <artifactId>gearpump-external-kafka_${scala.binary.version}</artifactId>
+                <version>${gearpump.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.yahoo.stream</groupId>
@@ -128,5 +158,6 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>storm-benchmarks</module>
         <module>flink-benchmarks</module>
         <module>spark-benchmarks</module>
+        <module>gearpump-benchmarks</module>
     </modules>
 </project>
