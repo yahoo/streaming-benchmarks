@@ -351,6 +351,7 @@ run() {
     echo "STOP_SPARK_PROCESSSING: kill the spark test processing"
     echo
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
+    echo "TRIDENT_TEST: run storm trident test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
     echo "SPARK_TEST: run spark test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
