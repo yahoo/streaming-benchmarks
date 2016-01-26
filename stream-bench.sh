@@ -86,7 +86,11 @@ fetch_untar_file() {
     echo "Using cached File $FILE"
   else
 	mkdir -p download-cache/
-    wget -O "$FILE" "$URL"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      curl -o "$FILE" "$URL"
+    else
+      wget -O "$FILE" "$URL"
+    fi
   fi
   tar -xzvf "$FILE"
 }

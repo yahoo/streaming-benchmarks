@@ -10,7 +10,7 @@ Code licensed under the Apache 2.0 license. See LICENSE file for terms.
 At Yahoo we have adopted [Apache Storm](https://storm.apache.org) as our stream processing platform of choice.  But that was in 2012 and the landscape has changed significantly since then. Because of this we really want to know what Storm is good at, where it needs to be improved compared to other systems, and what its limitations are compared to other tools so we can recommend the best tool for the job to our customers.  To do this we started to look for stream processing benchmarks that we could use to do this evaluation, but all of them ended up lacking in several fundamental areas.  Primarily they did not test anything close to a read world use case, so we decided to write a simple one.  This is the first round of these tests.  The tool here is not polished and only covers three tools and one specific use case.  We hope to expand this in the future in terms of the tools tested, the variety of processing tested, and the metrics gathered.
 
 ### Setup
-We provide a script stream-bench.sh to setup and run the tests on a single node, and to act as an example of what to do when running the tests on a multi-node system.
+We provide a script stream-bench.sh to setup and run the tests on a single node, and to act as an example of what to do when running the tests on a multi-node system. Also, you need to have leiningen installed on your machines before you start the tests (e.g., on Mac OS, you can install by "brew install leiningen").
 
 It takes a list of operations to perform, and options are passed into the script through environment variables. The most significant of these are
 
