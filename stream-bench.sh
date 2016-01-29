@@ -25,9 +25,6 @@ KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
 FLINK_DIR="flink-$FLINK_VERSION"
 SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
 
-#Get one of the closet apache mirrors
-APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
-
 ZK_HOST="localhost"
 ZK_PORT="2181"
 ZK_CONNECTIONS="$ZK_HOST:$ZK_PORT"
@@ -144,6 +141,9 @@ run() {
     cd $REDIS_DIR
     $MAKE
     cd ..
+
+    #Get one of the closet apache mirrors
+    APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
 
     #Fetch Kafka
     KAFKA_FILE="$KAFKA_DIR.tgz"
