@@ -26,7 +26,7 @@ FLINK_DIR="flink-$FLINK_VERSION"
 SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
 
 #Get one of the closet apache mirrors
-APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
+APACHE_MIRROR=$(download_file 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
 
 ZK_HOST="localhost"
 ZK_PORT="2181"
@@ -36,6 +36,38 @@ PARTITIONS=${PARTITIONS:-1}
 LOAD=${LOAD:-1000}
 CONF_FILE=./conf/localConf.yaml
 TEST_TIME=${TEST_TIME:-240}
+
+# one argument (url) -> stream of bytes of content at the url
+# two arguments (url, file) writes the contents at the url to file.
+download_file() {
+
+    URL="$1"
+
+    WGET=`whereis wget`
+    CURL=`whereis curl`
+
+    if [[ $# == 1 ]]; then
+        if [ -n "$WGET" ]; then
+            wget -O - "$URL"
+        elif [ -n "$CURL" ]; then
+            curl "$URL"
+        else
+            echo "Please install curl or wget to continue.";
+            exit 1
+        fi
+    else
+        TARGET="$2"
+        if [ -n "$WGET" ]; then
+            wget -O "$TARGET" "$URL"
+        elif [ -n "$CURL" ]; then
+            curl -o "$TARGET" "$URL"
+        else
+            echo "Please install curl or wget to continue.";
+            exit 1
+        fi
+    fi
+}
+
 
 pid_match() {
    local VAL=`ps -aef | grep "$1" | grep -v grep | awk '{print $2}'`
@@ -85,19 +117,8 @@ fetch_untar_file() {
   then
     echo "Using cached File $FILE"
   else
-	mkdir -p download-cache/
-    WGET=`whereis wget`
-    CURL=`whereis curl`
-    if [ -n "$WGET" ];
-    then
-      wget -O "$FILE" "$URL"
-    elif [ -n "$CURL" ];
-    then
-      curl -o "$FILE" "$URL"
-    else
-      echo "Please install curl or wget to continue.";
-      exit 1
-    fi
+    mkdir -p download-cache/
+    download_file "$URL" "$FILE"
   fi
   tar -xzvf "$FILE"
 }
@@ -125,16 +146,16 @@ run() {
     echo '    - "'$ZK_HOST'"' >> $CONF_FILE
     echo >> $CONF_FILE
     echo 'kafka.port: 9092' >> $CONF_FILE
-	echo 'zookeeper.port: '$ZK_PORT >> $CONF_FILE
-	echo 'redis.host: "localhost"' >> $CONF_FILE
-	echo 'kafka.topic: "'$TOPIC'"' >> $CONF_FILE
-	echo 'kafka.partitions: '$PARTITIONS >> $CONF_FILE
-	echo 'process.hosts: 1' >> $CONF_FILE
-	echo 'process.cores: 4' >> $CONF_FILE
-	echo 'storm.workers: 1' >> $CONF_FILE
-	echo 'storm.ackers: 2' >> $CONF_FILE
-	echo 'spark.batchtime: 2000' >> $CONF_FILE
-	
+    echo 'zookeeper.port: '$ZK_PORT >> $CONF_FILE
+    echo 'redis.host: "localhost"' >> $CONF_FILE
+    echo 'kafka.topic: "'$TOPIC'"' >> $CONF_FILE
+    echo 'kafka.partitions: '$PARTITIONS >> $CONF_FILE
+    echo 'process.hosts: 1' >> $CONF_FILE
+    echo 'process.cores: 4' >> $CONF_FILE
+    echo 'storm.workers: 1' >> $CONF_FILE
+    echo 'storm.ackers: 2' >> $CONF_FILE
+    echo 'spark.batchtime: 2000' >> $CONF_FILE
+
     $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
 
     #Fetch and build Redis
