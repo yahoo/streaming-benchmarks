@@ -129,4 +129,17 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>flink-benchmarks</module>
         <module>spark-benchmarks</module>
     </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
