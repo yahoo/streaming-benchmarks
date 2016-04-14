@@ -39,10 +39,10 @@
                 ads (clojure.java.io/reader "ad-ids.txt")]
       (println "Loading Ids.")
       {:campaigns (doall (line-seq campaigns))
-       :ads (doall (line-seq ads))}
-      (println "loading done"))
+       :ads (doall (line-seq ads))})
     (catch FileNotFoundException e
-      (println "Failed to load ids from file."))))
+      (println "Failed to load ids from file."))
+    (finally (println "loading done"))))
 
 (defn write-to-redis [campaigns ads redis-host]
   ;; Hook up the redis DB
