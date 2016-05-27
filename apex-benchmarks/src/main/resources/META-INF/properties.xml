@@ -26,5 +26,76 @@
     <name>redis</name>
     <value>node35.morado.com</value>
   </property>
+  
+  <!-- DimensionComputation begin -->
+  <property>
+    <name>dt.application.DimensionComputation.operator.Generator.batchSleepTime</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.DimensionComputation.operator.Store.fileStore.basePathPrefix</name>
+    <value>${dt.attr.APPLICATION_NAME}/Store</value>
+  </property>
+  <property>
+    <name>dt.application.DimensionComputation.operator.Store.embeddableQueryInfoProvider.topic</name>
+    <value>Query-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+  <property>
+    <name>dt.application.DimensionComputation.operator.QueryResult.topic</name>
+    <value>QueryResult-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+  <!-- DimensionComputation end -->
+  
+  <!-- ApplicationWithDC begin -->
+  <property>
+    <name>dt.application.ApplicationWithDC.operator.Store.fileStore.basePathPrefix</name>
+    <value>${dt.attr.APPLICATION_NAME}/Store</value>
+  </property>
+  <property>
+    <name>dt.application.ApplicationWithDC.operator.Store.embeddableQueryInfoProvider.topic</name>
+    <value>Query-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+  <property>
+    <name>dt.application.ApplicationWithDC.operator.QueryResult.topic</name>
+    <value>QueryResult-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+  <!-- ApplicationWithDC end -->
+  
+  <!-- DCHardCoded begin -->
+  <property>
+    <name>dt.application.DCHardCoded.operator.Store.fileStore.basePathPrefix</name>
+    <value>${dt.attr.APPLICATION_NAME}/Store</value>
+  </property>
+  <property>
+    <name>dt.application.DCHardCoded.operator.Store.embeddableQueryInfoProvider.topic</name>
+    <value>Query-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+  <property>
+    <name>dt.application.DCHardCoded.operator.QueryResult.topic</name>
+    <value>QueryResult-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+  <!-- DCHardCoded end -->
+  
+  <!-- AppWithDCWithoutDe begin -->
+  <property>
+    <name>dt.application.AppWithDCWithoutDe.operator.Store.fileStore.basePathPrefix</name>
+    <value>${dt.attr.APPLICATION_NAME}/Store</value>
+  </property>
+  <property>
+    <name>dt.application.AppWithDCWithoutDe.operator.Store.embeddableQueryInfoProvider.topic</name>
+    <value>Query-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+  <property>
+    <name>dt.application.AppWithDCWithoutDe.operator.QueryResult.topic</name>
+    <value>QueryResult-${dt.attr.APPLICATION_NAME}</value>
+  </property>
+    <property>
+    <name>dt.application.AppWithDCWithoutDe.redisServer</name>
+    <value>node35.morado.com</value>
+  </property>
+  AppWithDCWithoutDe
+  <!-- AppWithDCWithoutDe end -->
+  
+  
 </configuration>
 
