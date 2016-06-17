@@ -38,3 +38,9 @@ Ad events arrive through kafka in a JSON format.  They are parsed to a more usab
 ### Results
 The current set of results that we care about are comparing the latency that a particular processing system can produce at a given input load.
 The result of running a test creates a few files data/seen.txt and data/updated.txt  data/seen.txt contains the counts of events for different campaigns and time windows.  data/updated.txt is the latency in ms from when the last event was emitted to kafka for that particular campaign window and when it was written into Redis.
+
+### References
+Sanket Chintapalli, Derek Dagit, Bobby Evans, Reza Farivar, Thomas Graves, Mark Holderbaugh, Zhuo Liu, Kyle Nusbaum, Kishorkumar Patil, Boyang Jerry Peng, Paul Poulosky.
+"Benchmarking Streaming Computation Engines: Storm, Flink and Spark Streaming. " 
+First Annual Workshop on Emerging Parallel and Distributed Runtime Systems and Middleware. IEEE, 2016.
+
