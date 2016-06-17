@@ -88,17 +88,17 @@ public class ApplicationDimensionComputation implements StreamingApplication
     // key expression
     {
       Map<String, String> keyToExpression = Maps.newHashMap();
-      keyToExpression.put("adId", "adId");
-      keyToExpression.put("campaignId", "campaignId");
-      keyToExpression.put("eventTime", "eventTime");
-      keyToExpression.put("time", "eventTime");
+      keyToExpression.put("campaignId", DimensionTuple.CAMPAIGNID);
+      keyToExpression.put("time", DimensionTuple.EVENTTIME);
       dimensions.setKeyToExpression(keyToExpression);
     }
 
     // aggregate expression
     {
       Map<String, String> valueToExpression = Maps.newHashMap();
-      valueToExpression.put("clicks", "clicks");
+      valueToExpression.put("clicks", DimensionTuple.CLICKS);
+      valueToExpression.put("latency", DimensionTuple.LATENCY);
+      
       dimensions.setAggregateToExpression(valueToExpression);
     }
 

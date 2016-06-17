@@ -33,6 +33,10 @@
     <value>0</value>
   </property>
   <property>
+    <name>dt.application.DimensionComputation.operator.Generator.campaignSize</name>
+    <value>1000000</value>
+  </property>
+  <property>
     <name>dt.application.DimensionComputation.operator.Store.fileStore.basePathPrefix</name>
     <value>${dt.attr.APPLICATION_NAME}/Store</value>
   </property>
@@ -45,36 +49,6 @@
     <value>QueryResult-${dt.attr.APPLICATION_NAME}</value>
   </property>
   <!-- DimensionComputation end -->
-  
-  <!-- ApplicationWithDC begin -->
-  <property>
-    <name>dt.application.ApplicationWithDC.operator.Store.fileStore.basePathPrefix</name>
-    <value>${dt.attr.APPLICATION_NAME}/Store</value>
-  </property>
-  <property>
-    <name>dt.application.ApplicationWithDC.operator.Store.embeddableQueryInfoProvider.topic</name>
-    <value>Query-${dt.attr.APPLICATION_NAME}</value>
-  </property>
-  <property>
-    <name>dt.application.ApplicationWithDC.operator.QueryResult.topic</name>
-    <value>QueryResult-${dt.attr.APPLICATION_NAME}</value>
-  </property>
-  <!-- ApplicationWithDC end -->
-  
-  <!-- DCHardCoded begin -->
-  <property>
-    <name>dt.application.DCHardCoded.operator.Store.fileStore.basePathPrefix</name>
-    <value>${dt.attr.APPLICATION_NAME}/Store</value>
-  </property>
-  <property>
-    <name>dt.application.DCHardCoded.operator.Store.embeddableQueryInfoProvider.topic</name>
-    <value>Query-${dt.attr.APPLICATION_NAME}</value>
-  </property>
-  <property>
-    <name>dt.application.DCHardCoded.operator.QueryResult.topic</name>
-    <value>QueryResult-${dt.attr.APPLICATION_NAME}</value>
-  </property>
-  <!-- DCHardCoded end -->
   
   <!-- AppWithDCWithoutDe begin -->
   <property>

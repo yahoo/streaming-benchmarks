@@ -12,6 +12,7 @@ public class DimensionTuple implements Serializable
   public static final String CAMPAIGNID = "campaignId";
   public static final String EVENTTIME = "eventTime";
   public static final String CLICKS = "clicks";
+  public static final String LATENCY = "latency";
 
   public String adId;
   public String campaignId;
@@ -52,4 +53,8 @@ public class DimensionTuple implements Serializable
     this.clicks = clicks;
   }
   
+  public long getLatency()
+  {
+    return System.currentTimeMillis() - eventTime;
+  }
 }

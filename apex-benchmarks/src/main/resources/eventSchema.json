@@ -1,16 +1,16 @@
 {"keys":
   [
-    {"name":"adId","type":"string"},
     {"name":"campaignId","type":"string"},
-    {"name":"eventTime","type":"long"},
   ],
- "timeBuckets":["10s"],
+ "timeBuckets":["10s", "20m"],
  "values":
   [
-    {"name":"clicks","type":"long","aggregators":["COUNT"]}
+    {"name":"clicks","type":"long","aggregators":["COUNT"]},
+    {"name":"latency","type":"long","aggregators":["SUM","COUNT"]}
   ],
  "dimensions":
   [
+  	{"combination":[]},
     {"combination":["campaignId"]}
   ]
 }

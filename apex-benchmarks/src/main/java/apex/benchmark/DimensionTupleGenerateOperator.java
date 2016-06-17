@@ -13,6 +13,8 @@ public class DimensionTupleGenerateOperator implements InputOperator
   
   private int batchSize = 10;
   private int batchSleepTime = 2;
+  private int campaignSize = 1000000;
+  
   private DimensionTupleGenerator tupleGenerator = new DimensionTupleGenerator();
 
   @Override
@@ -67,6 +69,18 @@ public class DimensionTupleGenerateOperator implements InputOperator
   }
 
 
+  public int getCampaignSize()
+  {
+    return campaignSize;
+  }
+
+
+  public void setCampaignSize(int campaignSize)
+  {
+    this.campaignSize = campaignSize;
+  }
+
+
   @Override
   public void beginWindow(long arg0)
   {
@@ -80,6 +94,7 @@ public class DimensionTupleGenerateOperator implements InputOperator
   @Override
   public void setup(OperatorContext arg0)
   {
+    tupleGenerator.setCampaignSize(campaignSize);
   }
 
   @Override
