@@ -26,7 +26,19 @@
     <name>redis</name>
     <value>node35.morado.com</value>
   </property>
-  
+  <property>
+    <name>numberOfAds</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>numberOfCampaigns</name>
+    <value>100000</value>
+  </property>
+  <property>
+    <name>dt.operator.redisJoin.outputport.output.unifier.attr.MEMORY_MB</name>
+    <value>4072</value>
+  </property>
+
   <!-- DimensionComputation begin -->
   <property>
     <name>dt.application.DimensionComputation.operator.Generator.batchSleepTime</name>

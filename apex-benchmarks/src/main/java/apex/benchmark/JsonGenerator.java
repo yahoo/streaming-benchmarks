@@ -24,6 +24,29 @@ public class JsonGenerator extends BaseOperator implements InputOperator
   private String userID = UUID.randomUUID().toString();
   private final String[] eventTypes = new String[]{"view", "click", "purchase"};
 
+  public int getNumCampaigns()
+  {
+    return numCampaigns;
+  }
+
+  public void setNumCampaigns(int numCampaigns)
+  {
+    this.numCampaigns = numCampaigns;
+  }
+
+  public int getNumAdsPerCampaign()
+  {
+    return numAdsPerCampaign;
+  }
+
+  public void setNumAdsPerCampaign(int numAdsPerCampaign)
+  {
+    this.numAdsPerCampaign = numAdsPerCampaign;
+  }
+
+  private int numCampaigns = 10000;
+  private int numAdsPerCampaign = 10;
+
   private List<String> ads;
   private final Map<String, List<String>> campaigns;
 
@@ -74,8 +97,6 @@ public class JsonGenerator extends BaseOperator implements InputOperator
      */
   private Map<String, List<String>> generateCampaigns()
   {
-    int numCampaigns = 100;
-    int numAdsPerCampaign = 10;
     Map<String, List<String>> adsByCampaign = new LinkedHashMap<>();
     for (int i = 0; i < numCampaigns; i++) {
       String campaign = UUID.randomUUID().toString();
