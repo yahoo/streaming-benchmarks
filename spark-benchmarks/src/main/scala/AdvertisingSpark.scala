@@ -91,20 +91,18 @@ object KafkaRedisAdvertisingStream {
     //each record in the RDD: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
     //DStream[((String,Long),String)]
 
-    val groupedByCampaignTime = campaign_timeStamp.groupByKey()
-    // DStream[((String,Long), Iterable[String])]
+    // since we're just counting use reduceByKey
+    val totalEventsPerCampaignTime = campaign_timeStamp.mapValues(_ => 1).reduceByKey(_ + _)
 
-    val totalEventsPerCampaignTime = groupedByCampaignTime.map(x => {
-      (x._1, (x._2.size))
-    })
     //DStream[((String,Long), Int)]
     //each record: key:(campaign_id, window_time),  Value: number of events
 
     //Repartition here if desired to use more or less executors
     //    val totalEventsPerCampaignTime_repartitioned = totalEventsPerCampaignTime.repartition(20)
 
-    val final_results = totalEventsPerCampaignTime.mapPartitions(writeRedisTopLevel(_, redisHost), false)
-    val counts = final_results.count().print()
+    totalEventsPerCampaignTime.foreachRDD { rdd =>
+      rdd.foreachPartition(writeRedisTopLevel(_, redisHost))
+    }
 
     // Start the computation
     ssc.start
@@ -175,13 +173,12 @@ object KafkaRedisAdvertisingStream {
     //Key: (campaign_id, window_time),  Value: ad_id
   }
 
-  def writeRedisTopLevel(campaign_window_counts_Iterator: Iterator[((String, Long), Int)], redisHost: String): Iterator[String] = {
+  def writeRedisTopLevel(campaign_window_counts_Iterator: Iterator[((String, Long), Int)], redisHost: String) {
     val pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
 
-    val campaign_window_counts_IteratorMap =
-      campaign_window_counts_Iterator.map(campaign_window_counts => writeWindow(pool, campaign_window_counts))
+    campaign_window_counts_Iterator.foreach(campaign_window_counts => writeWindow(pool, campaign_window_counts))
+
     pool.underlying.getResource.close
-    return campaign_window_counts_IteratorMap
   }
 
   private def writeWindow(pool: Pool, campaign_window_counts: ((String, Long), Int)) : String = {
