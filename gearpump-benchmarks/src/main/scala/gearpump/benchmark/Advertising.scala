@@ -1,20 +1,24 @@
 package gearpump.benchmark
 
+import java.util.Properties
+
 import akka.actor.ActorSystem
 import benchmark.common.Utils
 import benchmark.common.advertising.{CampaignProcessorCommon, RedisAdCampaignCache}
-import io.gearpump.Message
-import io.gearpump.partitioner.{Partitioner, UnicastPartitioner, HashPartitioner}
-import io.gearpump.cluster.UserConfig
-import io.gearpump.cluster.client.ClientContext
-import io.gearpump.streaming.kafka.lib.StringMessageDecoder
-import io.gearpump.streaming.{StreamApplication, Processor}
-import io.gearpump.streaming.kafka.{KafkaSource, KafkaStorageFactory}
-import io.gearpump.streaming.source.{DefaultTimeStampFilter, DataSourceProcessor}
-import io.gearpump.streaming.task.{StartTime, Task, TaskContext}
-import io.gearpump.util.{AkkaApp, Graph}
+import org.apache.gearpump.Message
+import org.apache.gearpump.cluster.UserConfig
+import org.apache.gearpump.cluster.client.ClientContext
+import org.apache.gearpump.partitioner.{UnicastPartitioner, HashPartitioner}
+import org.apache.gearpump.streaming.StreamApplication
+import org.apache.gearpump.streaming.Processor
+import org.apache.gearpump.streaming.kafka.lib.source.StringMessageDecoder
+import org.apache.gearpump.streaming.kafka.util.KafkaConfig
+import org.apache.gearpump.streaming.task.{StartTime, Task, TaskContext}
+import org.apache.gearpump.streaming.kafka.KafkaSource
+import org.apache.gearpump.streaming.source.DataSourceProcessor
+import org.apache.gearpump.util.{Graph, AkkaApp}
+import org.apache.gearpump.util.Graph._
 import org.json.JSONObject
-import io.gearpump.util.Graph.Node
 import scala.collection.JavaConverters._
 
 object Advertising extends AkkaApp{
@@ -42,10 +46,15 @@ object Advertising extends AkkaApp{
     val kafkaPort = commonConfig.get("kafka.port").asInstanceOf[Int]
     val brokerList = kafkaHosts.map(_ + ":" + kafkaPort).mkString(",")
 
+    val appName = "Advertising"
     val parallel = Math.max(1, cores / 7)
+    val props = new Properties
+    props.put(KafkaConfig.ZOOKEEPER_CONNECT_CONFIG, zookeeperConnect)
+    props.put(KafkaConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList)
+    props.put(KafkaConfig.CHECKPOINT_STORE_NAME_PREFIX_CONFIG, appName)
+    props.put(KafkaConfig.MESSAGE_DECODER_CLASS_CONFIG, classOf[StringMessageDecoder])
     val gearConfig = UserConfig.empty.withString("redis.host", redisHost)
-    val offsetStorageFactory = new KafkaStorageFactory(zookeeperConnect, brokerList)
-    val source = new KafkaSource(topic, zookeeperConnect, offsetStorageFactory, new StringMessageDecoder, new DefaultTimeStampFilter)
+    val source = new KafkaSource(topic, props)
     val sourceProcessor = DataSourceProcessor(source, partitions)
     val deserializer = Processor[DeserializeTask](parallel)
     val filter = Processor[EventFilterTask](parallel)
@@ -55,7 +64,7 @@ object Advertising extends AkkaApp{
     val partitioner = new AdPartitioner
 
     val graph = Graph(sourceProcessor ~ new HashPartitioner ~> deserializer ~> filter ~> projection ~> join ~ partitioner ~> campaign)
-    StreamApplication("Advertising", graph, gearConfig)
+    StreamApplication(appName, graph, gearConfig)
   }
 
   override def main(akkaConf: Advertising.Config, args: Array[String]): Unit = {

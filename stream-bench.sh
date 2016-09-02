@@ -18,14 +18,14 @@ SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"4"}
 STORM_VERSION=${STORM_VERSION:-"0.10.0"}
 FLINK_VERSION=${FLINK_VERSION:-"0.10.1"}
 SPARK_VERSION=${SPARK_VERSION:-"1.5.1"}
-GEARPUMP_VERSION=${GEARPUMP_VERSION:-"0.7.5"}
+GEARPUMP_VERSION=${GEARPUMP_VERSION:-"0.8.1"}
 
 STORM_DIR="apache-storm-$STORM_VERSION"
 REDIS_DIR="redis-$REDIS_VERSION"
 KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
 FLINK_DIR="flink-$FLINK_VERSION"
 SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
-GEARPUMP_DIR="gearpump-$SCALA_BIN_VERSION-$GEARPUMP_VERSION"
+GEARPUMP_DIR="gearpump-2.11-$GEARPUMP_VERSION"
 
 #Get one of the closet apache mirrors
 APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
@@ -212,15 +212,15 @@ run() {
 
   elif [ "START_GEARPUMP" = "$OPERATION" ];
   then
-    start_if_needed io.gearpump.cluster.main.Master GearpumpMaster 3 $GEARPUMP_DIR/bin/master -ip 127.0.0.1 -port 3000
-    start_if_needed io.gearpump.cluster.main.Worker GearpumpWorker 3 $GEARPUMP_DIR/bin/worker
-    start_if_needed io.gearpump.services.main.Services GearpumpDashboard 3 $GEARPUMP_DIR/bin/services
+    start_if_needed org.apache.gearpump.cluster.main.Master GearpumpMaster 3 $GEARPUMP_DIR/bin/master -ip 127.0.0.1 -port 3000
+    start_if_needed org.apache.gearpump.cluster.main.Worker GearpumpWorker 3 $GEARPUMP_DIR/bin/worker
+    start_if_needed org.apache.gearpump.services.main.Services GearpumpDashboard 3 $GEARPUMP_DIR/bin/services
     sleep 3
   elif [ "STOP_GEARPUMP" = "$OPERATION" ];
   then
-    stop_if_needed io.gearpump.services.main.Services GearpumpDashboard
-    stop_if_needed io.gearpump.cluster.main.Worker GearpumpWorker
-    stop_if_needed io.gearpump.cluster.main.Master GearpumpMaster
+    stop_if_needed org.apache.gearpump.services.main.Services GearpumpDashboard
+    stop_if_needed org.apache.gearpump.cluster.main.Worker GearpumpWorker
+    stop_if_needed org.apache.gearpump.cluster.main.Master GearpumpMaster
     sleep 3
 
   elif [ "START_LOAD" = "$OPERATION" ];

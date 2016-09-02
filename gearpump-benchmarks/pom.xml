@@ -16,18 +16,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.github.intel-hadoop</groupId>
-            <artifactId>gearpump-streaming_${scala.binary.version}</artifactId>
+            <groupId>org.apache.gearpump</groupId>
+            <artifactId>gearpump-streaming_2.11</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.intel-hadoop</groupId>
-            <artifactId>gearpump-core_${scala.binary.version}</artifactId>
+            <groupId>org.apache.gearpump</groupId>
+            <artifactId>gearpump-core_2.11</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.intel-hadoop</groupId>
-            <artifactId>gearpump-external-kafka_${scala.binary.version}</artifactId>
+            <groupId>org.apache.gearpump</groupId>
+            <artifactId>gearpump-external-kafka_2.11</artifactId>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
@@ -68,7 +68,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
+                    <scalaVersion>${gp.scala.version}</scalaVersion>
                     <recompileMode>incremental</recompileMode>
                     <useZincServer>true</useZincServer>
                     <args>
