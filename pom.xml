@@ -15,12 +15,12 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spark.version>1.5.1</spark.version>
+        <spark.version>1.5.2</spark.version>
         <kafka.version>0.8.2.1</kafka.version>
-        <flink.version>0.10.1</flink.version>
+        <flink.version>0.10.2</flink.version>
         <storm.version>0.10.0</storm.version>
-        <scala.binary.version>2.10</scala.binary.version>
-        <scala.version>2.10.4</scala.version>
+        <scala.binary.version>2.11</scala.binary.version>
+        <scala.version>2.11.4</scala.version>
         <json.version>20141113</json.version>
         <jedis.version>2.4.2</jedis.version>
         <sedis.version>1.2.2</sedis.version>
