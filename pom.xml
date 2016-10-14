@@ -19,8 +19,10 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <kafka.version>0.8.2.1</kafka.version>
         <flink.version>0.10.1</flink.version>
         <storm.version>0.10.0</storm.version>
+        <gearpump.version>0.8.1</gearpump.version>
         <scala.binary.version>2.10</scala.binary.version>
         <scala.version>2.10.4</scala.version>
+        <gp.scala.version>2.11.8</gp.scala.version>
         <json.version>20141113</json.version>
         <jedis.version>2.4.2</jedis.version>
         <sedis.version>1.2.2</sedis.version>
@@ -64,6 +66,21 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
                 <groupId>org.apache.flink</groupId>
                 <artifactId>flink-connector-kafka</artifactId>
                 <version>${flink.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.gearpump</groupId>
+                <artifactId>gearpump-core_2.11</artifactId>
+                <version>${gearpump.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.gearpump</groupId>
+                <artifactId>gearpump-streaming_2.11</artifactId>
+                <version>${gearpump.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.gearpump</groupId>
+                <artifactId>gearpump-external-kafka_2.11</artifactId>
+                <version>${gearpump.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.yahoo.stream</groupId>
@@ -128,6 +145,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>storm-benchmarks</module>
         <module>flink-benchmarks</module>
         <module>spark-benchmarks</module>
+        <module>gearpump-benchmarks</module>
     </modules>
 
     <build>
