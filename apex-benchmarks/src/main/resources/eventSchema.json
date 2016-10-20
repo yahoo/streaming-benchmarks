@@ -2,15 +2,14 @@
   [
     {"name":"campaignId","type":"string"},
   ],
- "timeBuckets":["10s", "20m"],
+ "timeBuckets":["10s"],
  "values":
   [
-    {"name":"clicks","type":"long","aggregators":["COUNT"]},
-    {"name":"latency","type":"long","aggregators":["SUM","COUNT"]}
+    {"name":"clicks","type":"long","aggregators":["SUM"]},
+    {"name":"latency","type":"long","aggregators":["MAX"]}
   ],
  "dimensions":
   [
-  	{"combination":[]},
     {"combination":["campaignId"]}
   ]
 }

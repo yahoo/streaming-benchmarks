@@ -12,11 +12,11 @@
   </property>
   <property>
     <name>dt.operator.redisJoin.redisServerHost</name>
-    <value>node35.morado.com</value>
+    <value>node30.morado.com</value>
   </property>
   <property>
     <name>dt.operator.campaignProcessor.redisServerHost</name>
-    <value>node35.morado.com</value>
+    <value>node30.morado.com</value>
   </property>
   <property>
     <name>dt.attr.QUEUE_CAPACITY</name>
@@ -24,7 +24,7 @@
   </property>
   <property>
     <name>redis</name>
-    <value>node35.morado.com</value>
+    <value>node30.morado.com</value>
   </property>
   <property>
     <name>numberOfAds</name>
@@ -77,7 +77,7 @@
   </property>
     <property>
     <name>dt.application.AppWithDCWithoutDe.redisServer</name>
-    <value>node35.morado.com</value>
+    <value>node30.morado.com</value>
   </property>
   AppWithDCWithoutDe
   <!-- AppWithDCWithoutDe end -->

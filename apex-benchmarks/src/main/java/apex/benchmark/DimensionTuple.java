@@ -18,10 +18,20 @@ public class DimensionTuple implements Serializable
   public String campaignId;
 
   public long eventTime;
-  public long clicks;
+  public long clicks = 1;
+  
+  protected static boolean autoGeneratorCampaignId = true;
 
   public static DimensionTuple fromTuple(Tuple tuple)
   {
+    /**
+     * The campaignId should not empty in normal case. 
+     * This part of code is used for unit test where campainId will not populated. 
+     * Choose a special campainId for easier identify if any problem
+     */
+    if(tuple.campaignId == null && autoGeneratorCampaignId) {
+      tuple.campaignId = "1111111111111111111";
+    }
     if (tuple.adId == null || tuple.campaignId == null || tuple.event_time == null) {
       return null;
     }

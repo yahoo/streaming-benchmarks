@@ -7,6 +7,8 @@ import java.util.*;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
@@ -14,7 +16,8 @@ import com.datatorrent.common.util.BaseOperator;
 
 public class JsonGenerator extends BaseOperator implements InputOperator
 {
-
+  private static final transient Logger logger = LoggerFactory.getLogger(JsonGenerator.class);
+  
   public final transient DefaultOutputPort<JSONObject> out = new DefaultOutputPort<JSONObject>();
 
   private int adsIdx = 0;
@@ -44,7 +47,7 @@ public class JsonGenerator extends BaseOperator implements InputOperator
     this.numAdsPerCampaign = numAdsPerCampaign;
   }
 
-  private int numCampaigns = 10000;
+  private int numCampaigns = 100;
   private int numAdsPerCampaign = 10;
 
   private List<String> ads;
@@ -54,6 +57,16 @@ public class JsonGenerator extends BaseOperator implements InputOperator
   {
     this.campaigns = generateCampaigns();
     this.ads = flattenCampaigns();
+    dumpCampaigns();
+  }
+  
+  public void dumpCampaigns()
+  {
+    StringBuilder sb = new StringBuilder();
+    for (String campaign : campaigns.keySet()) {
+      sb.append(campaign).append("\n");
+    }
+    logger.info("Campaigns: \n{}", sb.toString());
   }
 
   public Map<String, List<String>> getCampaigns()
