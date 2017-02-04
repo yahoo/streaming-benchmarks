@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+
+      <property>
+          <name>dt.attr.MASTER_MEMORY_MB</name>
+          <value>4072</value>
+       </property>
+
+       <property>
+	  <name>dt.operator.redisJoin.outputport.output.unifier.attr.MEMORY_MB</name>
+          <value>4072</value>
+       </property>
+
+      <property>
+        <name>dt.operator.kafkaInput.prop.consumer.topic</name>
+        <value>benchmark_v6_8</value>
+      </property>
+
+     <property>
+      <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
+      <value>3072</value>
+     </property>
+
+      <property>
+        <name>dt.operator.kafkaInput.prop.consumer.zookeeper</name>
+        <value>node21.morado.com:2181</value>
+      </property>
+
+      <property>
+	<name>dt.operator.kafkaInput2.prop.consumer.cacheSize</name>
+	<value>10000</value>
+	</property>
+
+      <property>
+        <name>dt.operator.kafkaInput.prop.consumer.offset</name>
+        <value>latest</value>
+      </property>
+
+      <property>
+        <name>dt.operator.kafkaInput.prop.initialPartitionCount</name>
+        <value>12</value>
+      </property>
+
+      <property>
+        <name>dt.operator.redisJoin.redisServerHost</name>
+        <value>node35.morado.com</value>
+      </property>
+
+      <property>
+        <name>dt.operator.campaignProcessor.redisServerHost</name>
+        <value>node35.morado.com</value>
+     </property>
+
+</configuration>

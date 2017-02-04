@@ -18,12 +18,14 @@ SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"4"}
 STORM_VERSION=${STORM_VERSION:-"0.9.7"}
 FLINK_VERSION=${FLINK_VERSION:-"1.1.3"}
 SPARK_VERSION=${SPARK_VERSION:-"1.6.2"}
+APEX_VERSION=${APEX_VERSION:-"3.4.0"}
 
 STORM_DIR="apache-storm-$STORM_VERSION"
 REDIS_DIR="redis-$REDIS_VERSION"
 KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
 FLINK_DIR="flink-$FLINK_VERSION"
 SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
+APEX_DIR="apex-$APEX_VERSION"
 
 #Get one of the closet apache mirrors
 APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
@@ -135,7 +137,7 @@ run() {
 	echo 'storm.ackers: 2' >> $CONF_FILE
 	echo 'spark.batchtime: 2000' >> $CONF_FILE
 	
-    $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
+    $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION" -Dapex.version="$APEX_VERSION"
 
     #Fetch and build Redis
     REDIS_FILE="$REDIS_DIR.tar.gz"
@@ -143,6 +145,13 @@ run() {
 
     cd $REDIS_DIR
     $MAKE
+    cd ..
+
+    #Fetch Apex
+    APEX_FILE="$APEX_DIR.tgz.gz"
+    fetch_untar_file "$APEX_FILE" "$APACHE_MIRROR/apex/apache-apex-core-$APEX_VERSION/apex-$APEX_VERSION-source-release.tar.gz"
+    cd $APEX_DIR
+    $MVN clean install -DskipTests
     cd ..
 
     #Fetch Kafka
@@ -254,6 +263,26 @@ run() {
       "$FLINK_DIR/bin/flink" cancel $FLINK_ID
       sleep 3
     fi
+  elif [ "START_APEX" = "$OPERATION" ];
+      then
+      "$APEX_DIR/engine/src/main/scripts/apex" -e "launch -local -conf ./conf/apex.xml ./apex-benchmarks/target/apex_benchmark-1.0-SNAPSHOT.apa -exactMatch Apex_Benchmark"
+             sleep 5
+  elif [ "STOP_APEX" = "$OPERATION" ];
+       then
+       pkill -f apex_benchmark
+  elif [ "START_APEX_ON_YARN" = "$OPERATION" ];
+       then
+        "$APEX_DIR/engine/src/main/scripts/apex" -e "launch ./apex-benchmarks/target/apex_benchmark-1.0-SNAPSHOT.apa -conf ./conf/apex.xml -exactMatch Apex_Benchmark"
+  elif [ "STOP_APEX_ON_YARN" = "$OPERATION" ];
+       then
+       APP_ID=`"$APEX_DIR/engine/src/main/scripts/apex" -e "list-apps" | grep id | awk '{ print $2 }'| cut -c -1 ; true`
+       if [ "APP_ID" == "" ];
+       then
+         echo "Could not find streaming job to kill"
+       else
+        "$APEX_DIR/engine/src/main/scripts/apex" -e "kill-app $APP_ID"
+         sleep 3
+       fi
   elif [ "STORM_TEST" = "$OPERATION" ];
   then
     run "START_ZK"
@@ -299,6 +328,19 @@ run() {
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
+ elif [ "APEX_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_APEX"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_APEX"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
   elif [ "STOP_ALL" = "$OPERATION" ];
   then
     run "STOP_LOAD"
@@ -333,6 +375,8 @@ run() {
     echo "STOP_FLINK: kill flink processes"
     echo "START_SPARK: run spark processes"
     echo "STOP_SPARK: kill spark processes"
+    echo "START_APEX: run the Apex test processing"
+    echo "STOP_APEX: kill the Apex test processing"
     echo 
     echo "START_STORM_TOPOLOGY: run the storm test topology"
     echo "STOP_STORM_TOPOLOGY: kill the storm test topology"
@@ -344,6 +388,7 @@ run() {
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
     echo "SPARK_TEST: run spark test (assumes SETUP is done)"
+    echo "APEX_TEST: run Apex test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
     echo
     echo "HELP: print out this message"

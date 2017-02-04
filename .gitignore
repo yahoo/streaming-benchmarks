@@ -3,3 +3,10 @@ target
 dependency-reduced-pom.xml
 download-cache/**
 download-cache
+.idea/**
+.idea
+*.iml
+.classpath
+.project
+.settings
+bin
