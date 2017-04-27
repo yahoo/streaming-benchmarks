@@ -15,12 +15,14 @@
 
     <artifactId>spark-benchmarks</artifactId>
 
+<!--
     <repositories>
         <repository>
             <id>org.sedis</id>
             <url>http://pk11-scratch.googlecode.com/svn/trunk</url>
         </repository>
     </repositories>
+-->
 
     <dependencies>
         <dependency>
@@ -47,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-kafka_${scala.binary.version}</artifactId>
+            <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sedis</groupId>
