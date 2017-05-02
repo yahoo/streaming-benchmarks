@@ -8,7 +8,6 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.spout.SchemeAsMultiScheme;
-import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -17,24 +16,23 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-//import backtype.storm.utils.Utils;
 import benchmark.common.Utils;
 import benchmark.common.advertising.CampaignProcessorCommon;
 import benchmark.common.advertising.RedisAdCampaignCache;
-import java.util.Map;
-import java.util.UUID;
-import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import redis.clients.jedis.Jedis;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
 import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 
 /**
  * This is a basic example of a Storm topology.
@@ -149,8 +147,6 @@ public class AdvertisingTopology {
 
     public static class CampaignProcessor extends BaseRichBolt {
 
-        private static final Logger LOG = Logger.getLogger(CampaignProcessor.class);
-
         private OutputCollector _collector;
         transient private CampaignProcessorCommon campaignProcessorCommon;
         private String redisServerHost;
@@ -180,20 +176,7 @@ public class AdvertisingTopology {
         }
     }
 
-    private static String joinHosts(List<String> hosts, String port) {
-        String joined = null;
-        for(String s : hosts) {
-            if(joined == null) {
-                joined = "";
-            }
-            else {
-                joined += ",";
-            }
 
-            joined += s + ":" + port;
-        }
-        return joined;
-    }
 
     public static void main(String[] args) throws Exception {
         TopologyBuilder builder = new TopologyBuilder();
@@ -206,7 +189,7 @@ public class AdvertisingTopology {
         String configPath = cmd.getOptionValue("conf");
         Map commonConfig = Utils.findAndReadConfigFile(configPath, true);
 
-        String zkServerHosts = joinHosts((List<String>)commonConfig.get("zookeeper.servers"),
+        String zkServerHosts = StormUtils.joinHosts((List<String>)commonConfig.get("zookeeper.servers"),
                                          Integer.toString((Integer)commonConfig.get("zookeeper.port")));
         String redisServerHost = (String)commonConfig.get("redis.host");
         String kafkaTopic = (String)commonConfig.get("kafka.topic");
