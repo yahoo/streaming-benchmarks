@@ -14,7 +14,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 
-@ApplicationAnnotation(name = "Apex_Benchmark")
+@ApplicationAnnotation(name = "apex-benchmark")
 public class Application implements StreamingApplication
 {
   @Override

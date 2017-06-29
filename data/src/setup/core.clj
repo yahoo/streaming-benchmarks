@@ -4,7 +4,7 @@
 (ns setup.core
   (:import java.util.UUID)
   (:import java.io.FileNotFoundException)
-  (:require [clj-kafka.new.producer :refer :all]
+  (:require [gregor.core :as gregor]
             [redis.core :as redis]
             [clojure.java.io :as io]
             [clj-json.core :as json]
@@ -16,6 +16,7 @@
 (def view-capacity-per-window 10)
 (def kafka-event-count  (* 10 1000000)) ; N millions
 (def time-divisor 10000)               ; 10 seconds
+(def byte-array-serializer "org.apache.kafka.common.serialization.ByteArraySerializer")
 
 (defn make-ids [n]
   (for [n (range n)]
@@ -61,9 +62,8 @@
 (defn write-to-kafka [ads kafka-hosts]
   ;; Put some crap in Kafka
   (println "Setting up kafka topic.")
-  (with-open [p (producer {"bootstrap.servers" kafka-hosts}
-                          (byte-array-serializer)
-                          (byte-array-serializer))]
+  (let [producer (gregor/producer kafka-hosts (-> {"key.serializer" byte-array-serializer
+                                                   "value.serializer" byte-array-serializer}))]
     (println "Creating kafka senders.")
     (let [ad-types ["banner", "modal", "sponsored-search", "mail", "mobile"]
           event-types ["view", "click", "purchase"]
@@ -95,7 +95,9 @@
                                   "\", \"event_time\": \"" (str (+ start-time (* n 10) skew late-by))
                                   "\", \"ip_address\": \"1.2.3.4\"}")]
                 (.write kafka-o (str json-str "\n"))
-                (send p (record "ad-events" (.getBytes json-str))))))))))))
+                (gregor/send producer "ad-events" (.getBytes json-str)))))))))
+    (gregor/close producer)
+    ))
 
 ;; Returns a map campaign-id->(timestamp->count)
 (defn dostats []
@@ -188,19 +190,19 @@
         start-time-ns (* 1000000 (System/currentTimeMillis))
         period-ns (long (/ 1000000000 throughput))
         times (map #(+ (* period-ns %) start-time-ns) (range))]
-    (with-open [p (producer {"bootstrap.servers" kafka-hosts}
-                            (byte-array-serializer)
-                            (byte-array-serializer))]
+    (let [p (gregor/producer kafka-hosts  (-> {"key.serializer" byte-array-serializer
+                                               "value.serializer" byte-array-serializer}))]
       (doseq [t times]
-        (let [cur (System/currentTimeMillis)
+          (let [cur (System/currentTimeMillis)
               t (long (/ t 1000000))]
           (if (> t cur)
             (Thread/sleep (- t cur))
             (future
               (if (> cur (+ t 100))
                 (println "Falling behind by:" (- cur t) "ms"))))
-          (send p (record "ad-events"
-                          (.getBytes (make-kafka-event-at t with-skew? ads user-ids page-ids)))))))))
+          (gregor/send p "ad-events" (.getBytes (make-kafka-event-at t with-skew? ads user-ids page-ids)))))
+      (gregor/close p)
+      )))
 
 (defn do-new-setup [redis-host]
   ;; Hook up the redis DB
@@ -244,7 +246,7 @@
         (write-to-redis campaigns ads (conf :redis-host))
         (write-to-kafka ads (conf :kakfa-brokers))
         (write-ids campaigns ads))
-      (write-to-redis campaigns ads))))
+      (write-to-redis campaigns ads (conf :redis-host)))))
 
 (defn get-conf [confPath]
   (let [conf (yaml/parse-string (slurp confPath))

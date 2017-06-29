@@ -11,24 +11,25 @@ MVN=${MVN:-mvn}
 GIT=${GIT:-git}
 MAKE=${MAKE:-make}
 
-KAFKA_VERSION=${KAFKA_VERSION:-"0.8.2.1"}
+KAFKA_VERSION=${KAFKA_VERSION:-"0.10.2.1"}
 REDIS_VERSION=${REDIS_VERSION:-"3.0.5"}
-SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.10"}
-SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"4"}
+SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.11"}
+SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"0.9.7"}
-FLINK_VERSION=${FLINK_VERSION:-"1.1.3"}
-SPARK_VERSION=${SPARK_VERSION:-"1.6.2"}
-APEX_VERSION=${APEX_VERSION:-"3.4.0"}
+FLINK_VERSION=${FLINK_VERSION:-"1.3.1"}
+SPARK_VERSION=${SPARK_VERSION:-"2.1.1"}
+APEX_VERSION=${APEX_VERSION:-"3.6.0"}
 
 STORM_DIR="apache-storm-$STORM_VERSION"
 REDIS_DIR="redis-$REDIS_VERSION"
 KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
 FLINK_DIR="flink-$FLINK_VERSION"
 SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
-APEX_DIR="apex-$APEX_VERSION"
+APEX_DIR="apache-apex-core-$APEX_VERSION"
 
 #Get one of the closet apache mirrors
 APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
+APACHE_MIRROR=${APACHE_MIRROR%?}
 
 ZK_HOST="localhost"
 ZK_PORT="2181"
@@ -116,7 +117,10 @@ create_kafka_topic() {
 
 run() {
   OPERATION=$1
-  if [ "SETUP" = "$OPERATION" ];
+  if [ "BUILD_BENCHMARKS" = "$OPERATION" ];
+  then
+    $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION" -Dapex.version="$APEX_VERSION" -DskipTests
+  elif [ "SETUP" = "$OPERATION" ];
   then
     $GIT clean -fd
 
@@ -127,6 +131,7 @@ run() {
     echo '    - "'$ZK_HOST'"' >> $CONF_FILE
     echo >> $CONF_FILE
     echo 'kafka.port: 9092' >> $CONF_FILE
+    echo 'kafka.committime: 2000' >> $CONF_FILE
 	echo 'zookeeper.port: '$ZK_PORT >> $CONF_FILE
 	echo 'redis.host: "localhost"' >> $CONF_FILE
 	echo 'kafka.topic: "'$TOPIC'"' >> $CONF_FILE
@@ -137,7 +142,7 @@ run() {
 	echo 'storm.ackers: 2' >> $CONF_FILE
 	echo 'spark.batchtime: 2000' >> $CONF_FILE
 	
-    $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION" -Dapex.version="$APEX_VERSION"
+    $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION" -Dapex.version="$APEX_VERSION" -DskipTests
 
     #Fetch and build Redis
     REDIS_FILE="$REDIS_DIR.tar.gz"
@@ -149,7 +154,7 @@ run() {
 
     #Fetch Apex
     APEX_FILE="$APEX_DIR.tgz.gz"
-    fetch_untar_file "$APEX_FILE" "$APACHE_MIRROR/apex/apache-apex-core-$APEX_VERSION/apex-$APEX_VERSION-source-release.tar.gz"
+    fetch_untar_file "$APEX_FILE" "$APACHE_MIRROR/apex/apache-apex-core-$APEX_VERSION/apache-apex-core-$APEX_VERSION-source-release.tar.gz"
     cd $APEX_DIR
     $MVN clean install -DskipTests
     cd ..
@@ -244,11 +249,11 @@ run() {
     sleep 10
   elif [ "START_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.KafkaRedisAdvertisingStream ./spark-benchmarks/target/spark-benchmarks-0.1.0.jar "$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmarks.AdvertisingSpark ./spark-benchmarks/target/spark-benchmarks-0.1.0.jar "$CONF_FILE" &
     sleep 5
   elif [ "STOP_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"
+    stop_if_needed spark.benchmarks.AdvertisingSpark "Spark Client Process"
   elif [ "START_FLINK_PROCESSING" = "$OPERATION" ];
   then
     "$FLINK_DIR/bin/flink" run ./flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE &
@@ -263,16 +268,23 @@ run() {
       "$FLINK_DIR/bin/flink" cancel $FLINK_ID
       sleep 3
     fi
+  elif [ "START_KAFKA_STREAMS" = "$OPERATION" ];
+    then
+      java -jar ./kafka-streams-benchmarks/target/kafka-streams-benchmarks-0.1.0.jar "$CONF_FILE" &
+      sleep 5
+  elif [ "STOP_KAFKA_STREAMS" = "$OPERATION" ];
+       then
+       pkill -f kafka-streams
   elif [ "START_APEX" = "$OPERATION" ];
       then
-      "$APEX_DIR/engine/src/main/scripts/apex" -e "launch -local -conf ./conf/apex.xml ./apex-benchmarks/target/apex_benchmark-1.0-SNAPSHOT.apa -exactMatch Apex_Benchmark"
+      "$APEX_DIR/engine/src/main/scripts/apex" -e "launch -local -conf ./conf/apex.xml ./apex-benchmarks/target/apex-benchmark-1.0-SNAPSHOT.apa -exactMatch apex-benchmark"
              sleep 5
   elif [ "STOP_APEX" = "$OPERATION" ];
        then
-       pkill -f apex_benchmark
+       pkill -f apex-benchmark
   elif [ "START_APEX_ON_YARN" = "$OPERATION" ];
        then
-        "$APEX_DIR/engine/src/main/scripts/apex" -e "launch ./apex-benchmarks/target/apex_benchmark-1.0-SNAPSHOT.apa -conf ./conf/apex.xml -exactMatch Apex_Benchmark"
+        "$APEX_DIR/engine/src/main/scripts/apex" -e "launch ./apex-benchmarks/target/apex-benchmark-1.0-SNAPSHOT.apa -conf ./conf/apex.xml -exactMatch apex-benchmark"
   elif [ "STOP_APEX_ON_YARN" = "$OPERATION" ];
        then
        APP_ID=`"$APEX_DIR/engine/src/main/scripts/apex" -e "list-apps" | grep id | awk '{ print $2 }'| cut -c -1 ; true`
@@ -328,6 +340,19 @@ run() {
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
+  elif [ "KAFKA_STREAMS_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_KAFKA_STREAMS"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_KAFKA_STREAMS"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
  elif [ "APEX_TEST" = "$OPERATION" ];
   then
     run "START_ZK"
@@ -356,7 +381,7 @@ run() {
   else
     if [ "HELP" != "$OPERATION" ];
     then
-      echo "UNKOWN OPERATION '$OPERATION'"
+      echo "UNKNOWN OPERATION '$OPERATION'"
       echo
     fi
     echo "Supported Operations:"
@@ -377,6 +402,8 @@ run() {
     echo "STOP_SPARK: kill spark processes"
     echo "START_APEX: run the Apex test processing"
     echo "STOP_APEX: kill the Apex test processing"
+    echo "START_KAFKA_STREAMS: run the kafka streams test processing"
+    echo "STOP_KAFKA_STREAMS: kill the kafka streams test processing"
     echo 
     echo "START_STORM_TOPOLOGY: run the storm test topology"
     echo "STOP_STORM_TOPOLOGY: kill the storm test topology"
@@ -388,6 +415,7 @@ run() {
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
     echo "SPARK_TEST: run spark test (assumes SETUP is done)"
+    echo "KAFKA_STREAMS_TEST: run kafka streams test (assumes SETUP is done)"
     echo "APEX_TEST: run Apex test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
     echo
