@@ -18,6 +18,7 @@ It takes a list of operations to perform, and options are passed into the script
    * SETUP - download dependencies (Storm, Spark, Flink, Redis, and Kafka) cleans out any temp files and compiles everything
    * STORM_TEST - Run the test using Storm on a single node
    * SPARK_TEST - Run the test using Spark on a single node
+   * KAFKA_STREAMS_TEST - Run the test using Kafka Streams on a single node
    * FLINK_TEST - Run the test using Flink on a single node
    * APEX_TEST  - Run the test using Apex on a single node
    * STOP_ALL - If something goes wrong stop all processes that were launched for the test.
