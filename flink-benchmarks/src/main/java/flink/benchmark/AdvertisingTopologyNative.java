@@ -15,8 +15,9 @@ import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer082;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
 import org.apache.flink.util.Collector;
 import org.json.JSONObject;
@@ -48,6 +49,8 @@ public class AdvertisingTopologyNative {
         LOG.info("Parameters used: {}", flinkBenchmarkParams.toMap());
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        CheckpointConfig config = env.getCheckpointConfig();
+        config.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
         env.getConfig().setGlobalJobParameters(flinkBenchmarkParams);
 
 		// Set the buffer timeout (default 100)
@@ -62,7 +65,7 @@ public class AdvertisingTopologyNative {
         env.setParallelism(hosts * cores);
 
         DataStream<String> messageStream = env
-                .addSource(new FlinkKafkaConsumer082<String>(
+                .addSource(new FlinkKafkaConsumer010<String>(
                         flinkBenchmarkParams.getRequired("topic"),
                         new SimpleStringSchema(),
                         flinkBenchmarkParams.getProperties())).setParallelism(Math.min(hosts * cores, kafkaPartitions));

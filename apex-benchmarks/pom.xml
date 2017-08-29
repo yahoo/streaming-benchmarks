@@ -13,10 +13,10 @@
 
   <properties>
     <!-- change this if you desire to use a different version of Apex -->
-    <apex.version>3.4.0</apex.version>
+    <apex.version>3.5.0</apex.version>
     <apex.apppackage.classpath>lib/*.jar</apex.apppackage.classpath>
-    <malhar.version>3.4.0</malhar.version>
-    <megh.version>3.4.0</megh.version>
+    <malhar.version>3.5.0</malhar.version>
+    <megh.version>3.5.0</megh.version>
   </properties>
 
   <build>

@@ -11,21 +11,21 @@ MVN=${MVN:-mvn}
 GIT=${GIT:-git}
 MAKE=${MAKE:-make}
 
-KAFKA_VERSION=${KAFKA_VERSION:-"0.8.2.1"}
-REDIS_VERSION=${REDIS_VERSION:-"3.0.5"}
-SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.10"}
-SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"4"}
+KAFKA_VERSION=${KAFKA_VERSION:-"0.10.2.0"}
+REDIS_VERSION=${REDIS_VERSION:-"3.2.8"}
+SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.11"}
+SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"0.9.7"}
-FLINK_VERSION=${FLINK_VERSION:-"1.1.3"}
-SPARK_VERSION=${SPARK_VERSION:-"1.6.2"}
-APEX_VERSION=${APEX_VERSION:-"3.4.0"}
+FLINK_VERSION=${FLINK_VERSION:-"1.2.0"}
+SPARK_VERSION=${SPARK_VERSION:-"2.1.0"}
+APEX_VERSION=${APEX_VERSION:-"3.5.0"}
 
 STORM_DIR="apache-storm-$STORM_VERSION"
 REDIS_DIR="redis-$REDIS_VERSION"
 KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
 FLINK_DIR="flink-$FLINK_VERSION"
-SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
-APEX_DIR="apex-$APEX_VERSION"
+SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.7"
+APEX_DIR="apache-apex-core-$APEX_VERSION"
 
 #Get one of the closet apache mirrors
 APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
@@ -149,7 +149,7 @@ run() {
 
     #Fetch Apex
     APEX_FILE="$APEX_DIR.tgz.gz"
-    fetch_untar_file "$APEX_FILE" "$APACHE_MIRROR/apex/apache-apex-core-$APEX_VERSION/apex-$APEX_VERSION-source-release.tar.gz"
+    fetch_untar_file "$APEX_FILE" "$APACHE_MIRROR/apex/apache-apex-core-$APEX_VERSION/apache-apex-core-$APEX_VERSION-source-release.tar.gz"
     cd $APEX_DIR
     $MVN clean install -DskipTests
     cd ..
