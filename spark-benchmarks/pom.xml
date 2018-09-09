@@ -47,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-kafka_${scala.binary.version}</artifactId>
+            <artifactId>spark-streaming-kafka-0-8_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sedis</groupId>
