@@ -16,7 +16,7 @@ REDIS_VERSION=${REDIS_VERSION:-"4.0.11"}
 SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.11"}
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"12"}
 STORM_VERSION=${STORM_VERSION:-"1.2.2"}
-FLINK_VERSION=${FLINK_VERSION:-"1.1.3"}
+FLINK_VERSION=${FLINK_VERSION:-"1.6.0"}
 SPARK_VERSION=${SPARK_VERSION:-"2.3.1"}
 APEX_VERSION=${APEX_VERSION:-"3.4.0"}
 
@@ -210,10 +210,10 @@ run() {
     rm -rf /tmp/kafka-logs/
   elif [ "START_FLINK" = "$OPERATION" ];
   then
-    start_if_needed org.apache.flink.runtime.jobmanager.JobManager Flink 1 $FLINK_DIR/bin/start-local.sh
+    start_if_needed org.apache.flink.runtime.jobmanager.JobManager Flink 1 $FLINK_DIR/bin/start-cluster.sh
   elif [ "STOP_FLINK" = "$OPERATION" ];
   then
-    $FLINK_DIR/bin/stop-local.sh
+    $FLINK_DIR/bin/stop-cluster.sh
   elif [ "START_SPARK" = "$OPERATION" ];
   then
     start_if_needed org.apache.spark.deploy.master.Master SparkMaster 5 $SPARK_DIR/sbin/start-master.sh -h localhost -p 7077
