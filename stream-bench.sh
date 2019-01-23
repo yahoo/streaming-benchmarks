@@ -12,23 +12,23 @@ GIT=${GIT:-git}
 MAKE=${MAKE:-make}
 
 KAFKA_VERSION=${KAFKA_VERSION:-"0.8.2.1"}
-REDIS_VERSION=${REDIS_VERSION:-"3.0.5"}
-SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.10"}
-SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"4"}
-STORM_VERSION=${STORM_VERSION:-"0.9.7"}
-FLINK_VERSION=${FLINK_VERSION:-"1.1.3"}
-SPARK_VERSION=${SPARK_VERSION:-"1.6.2"}
+REDIS_VERSION=${REDIS_VERSION:-"4.0.11"}
+SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.11"}
+SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"12"}
+STORM_VERSION=${STORM_VERSION:-"1.2.2"}
+FLINK_VERSION=${FLINK_VERSION:-"1.6.0"}
+SPARK_VERSION=${SPARK_VERSION:-"2.3.1"}
 APEX_VERSION=${APEX_VERSION:-"3.4.0"}
 
 STORM_DIR="apache-storm-$STORM_VERSION"
 REDIS_DIR="redis-$REDIS_VERSION"
 KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
 FLINK_DIR="flink-$FLINK_VERSION"
-SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.6"
+SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.7"
 APEX_DIR="apex-$APEX_VERSION"
 
 #Get one of the closet apache mirrors
-APACHE_MIRROR=$(curl 'https://www.apache.org/dyn/closer.cgi' |   grep -o '<strong>[^<]*</strong>' |   sed 's/<[^>]*>//g' |   head -1)
+APACHE_MIRROR=$"https://archive.apache.org/dist"
 
 ZK_HOST="localhost"
 ZK_PORT="2181"
@@ -210,10 +210,10 @@ run() {
     rm -rf /tmp/kafka-logs/
   elif [ "START_FLINK" = "$OPERATION" ];
   then
-    start_if_needed org.apache.flink.runtime.jobmanager.JobManager Flink 1 $FLINK_DIR/bin/start-local.sh
+    start_if_needed org.apache.flink.runtime.jobmanager.JobManager Flink 1 $FLINK_DIR/bin/start-cluster.sh
   elif [ "STOP_FLINK" = "$OPERATION" ];
   then
-    $FLINK_DIR/bin/stop-local.sh
+    $FLINK_DIR/bin/stop-cluster.sh
   elif [ "START_SPARK" = "$OPERATION" ];
   then
     start_if_needed org.apache.spark.deploy.master.Master SparkMaster 5 $SPARK_DIR/sbin/start-master.sh -h localhost -p 7077
