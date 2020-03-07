@@ -23,9 +23,9 @@ It takes a list of operations to perform, and options are passed into the script
    * STOP_ALL - If something goes wrong stop all processes that were launched for the test.
 
 #### Environment Variables
-   * STORM_VERSION - the version of Storm to compile and run against (default 0.10.0)
-   * SPARK_VERSION - the version of Spark to compile and run against (default 1.5.1)
-   * FLINK_VERSION - the version of Flink to compile and run against (default 0.10.1)
+   * STORM_VERSION - the version of Storm to compile and run against (default 1.2.2)
+   * SPARK_VERSION - the version of Spark to compile and run against (default 2.3.1)
+   * FLINK_VERSION - the version of Flink to compile and run against (default 1.6.0)
    * APEX_VERSION - the version of Apex to compile and run against (default 3.4.0)
    * LOAD - the number of messages per second to send to be processed (default 1000)
    * TEST_TIME - the number of seconds to run the test for (default 240)
