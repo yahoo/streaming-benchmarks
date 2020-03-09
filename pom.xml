@@ -28,7 +28,6 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <commons-cli.version>1.4</commons-cli.version>
         <snakeyaml.version>1.23</snakeyaml.version>
         <shade.version>3.1.1</shade.version>
-        <apex.version>3.4.0</apex.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -130,7 +129,6 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>storm-benchmarks</module>
         <module>flink-benchmarks</module>
         <module>spark-benchmarks</module>
-        <module>apex-benchmarks</module>
     </modules>
 
     <build>
