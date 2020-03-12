@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import com.esotericsoftware.minlog.Log;
+
 /**
  * To Run:  flink run target/flink-benchmarks-0.1.0-AdvertisingTopologyNative.jar  --confPath "../conf/benchmarkConf.yaml"
  */
@@ -41,6 +43,9 @@ public class AdvertisingTopologyNative {
         int kafkaPartitions = ((Number)conf.get("kafka.partitions")).intValue();
         int hosts = ((Number)conf.get("process.hosts")).intValue();
         int cores = ((Number)conf.get("process.cores")).intValue();
+
+        String hostname = parameterTool.get("hostname", "localhost");
+        int port = parameterTool.getInt("port", 9000);
 
         ParameterTool flinkBenchmarkParams = ParameterTool.fromMap(getFlinkConfs(conf));
 
@@ -61,11 +66,8 @@ public class AdvertisingTopologyNative {
         // set default parallelism for all operators (recommended value: number of available worker CPU cores in the cluster (hosts * cores))
         env.setParallelism(hosts * cores);
 
-        DataStream<String> messageStream = env
-                .addSource(new FlinkKafkaConsumer082<String>(
-                        flinkBenchmarkParams.getRequired("topic"),
-                        new SimpleStringSchema(),
-                        flinkBenchmarkParams.getProperties())).setParallelism(Math.min(hosts * cores, kafkaPartitions));
+        // get input data by connecting to the socket
+        DataStream<String> messageStream = env.socketTextStream(hostname, port, "\n");
 
         messageStream
                 .rebalance()
@@ -84,7 +86,6 @@ public class AdvertisingTopologyNative {
                 // process campaign
                 .keyBy(0)
                 .flatMap(new CampaignProcessor());
-
 
         env.execute();
     }
@@ -106,6 +107,8 @@ public class AdvertisingTopologyNative {
                             obj.getString("event_time"),
                             obj.getString("ip_address"));
             out.collect(tuple);
+
+            System.out.println("DeserializeBolt...");
         }
     }
 
@@ -137,6 +140,7 @@ public class AdvertisingTopologyNative {
             String ad_id = input.getField(0);
             String campaign_id = this.redisAdCampaignCache.execute(ad_id);
             if(campaign_id == null) {
+                Log.error("FLIN_TEST", "Can't find campagin ID");
                 return;
             }
 
