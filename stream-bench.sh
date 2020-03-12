@@ -160,6 +160,9 @@ run() {
     #Fetch Spark
     SPARK_FILE="$SPARK_DIR.tgz"
     fetch_untar_file "$SPARK_FILE" "$APACHE_MIRROR/spark/spark-$SPARK_VERSION/$SPARK_FILE"
+  elif [ "MVN_BUILD" = "$OPERATION" ];
+  then
+    $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
 
   elif [ "START_ZK" = "$OPERATION" ];
   then
@@ -198,7 +201,7 @@ run() {
   elif [ "STOP_KAFKA" = "$OPERATION" ];
   then
     stop_if_needed kafka\.Kafka Kafka
-    rm -rf /tmp/kafka-logs/
+    # rm -rf /tmp/kafka-logs/
   elif [ "START_FLINK" = "$OPERATION" ];
   then
     start_if_needed org.apache.flink.runtime.jobmanager.JobManager Flink 1 $FLINK_DIR/bin/start-cluster.sh
@@ -318,6 +321,7 @@ run() {
       echo
     fi
     echo "Supported Operations:"
+    echo "MVN_BUILD: build the benchmarks"
     echo "SETUP: download and setup dependencies for running a single node test"
     echo "START_ZK: run a single node ZooKeeper instance on local host in the background"
     echo "STOP_ZK: kill the ZooKeeper instance"
