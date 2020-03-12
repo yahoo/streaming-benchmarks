@@ -37,9 +37,9 @@ public class AdvertisingTopologyNative {
         ParameterTool parameterTool = ParameterTool.fromArgs(args);
 
         Map conf = Utils.findAndReadConfigFile(parameterTool.getRequired("confPath"), true);
-        int kafkaPartitions = ((Number)conf.get("kafka.partitions")).intValue();
-        int hosts = ((Number)conf.get("process.hosts")).intValue();
-        int cores = ((Number)conf.get("process.cores")).intValue();
+//        int kafkaPartitions = ((Number)conf.get("kafka.partitions")).intValue();
+//        int hosts = ((Number)conf.get("process.hosts")).intValue();
+//        int cores = ((Number)conf.get("process.cores")).intValue();
 
         String hostname = parameterTool.get("hostname", "localhost");
         int port = parameterTool.getInt("port", 9000);
@@ -54,14 +54,14 @@ public class AdvertisingTopologyNative {
 
 		// Set the buffer timeout (default 100)
         // Lowering the timeout will lead to lower latencies, but will eventually reduce throughput.
-        env.setBufferTimeout(flinkBenchmarkParams.getLong("flink.buffer-timeout", 100));
+//        env.setBufferTimeout(flinkBenchmarkParams.getLong("flink.buffer-timeout", 100));
 
-        if(flinkBenchmarkParams.has("flink.checkpoint-interval")) {
+//        if(flinkBenchmarkParams.has("flink.checkpoint-interval")) {
             // enable checkpointing for fault tolerance
-            env.enableCheckpointing(flinkBenchmarkParams.getLong("flink.checkpoint-interval", 1000));
-        }
+//            env.enableCheckpointing(flinkBenchmarkParams.getLong("flink.checkpoint-interval", 1000));
+//        }
         // set default parallelism for all operators (recommended value: number of available worker CPU cores in the cluster (hosts * cores))
-        env.setParallelism(hosts * cores);
+//        env.setParallelism(hosts * cores);
 
         // get input data by connecting to the socket
         DataStream<String> messageStream = env.socketTextStream(hostname, port, "\n");
@@ -93,6 +93,8 @@ public class AdvertisingTopologyNative {
         @Override
         public void flatMap(String input, Collector<Tuple7<String, String, String, String, String, String, String>> out)
                 throws Exception {
+
+//            LOG.info(input);
             JSONObject obj = new JSONObject(input);
             Tuple7<String, String, String, String, String, String, String> tuple =
                     new Tuple7<String, String, String, String, String, String, String>(
@@ -104,8 +106,6 @@ public class AdvertisingTopologyNative {
                             obj.getString("event_time"),
                             obj.getString("ip_address"));
             out.collect(tuple);
-
-            System.out.println("DeserializeBolt...");
         }
     }
 
