@@ -156,9 +156,6 @@ run() {
   elif [ "START_REDIS" = "$OPERATION" ];
   then
     start_if_needed redis-server Redis 1 "$REDIS_DIR/src/redis-server"
-    cd data
-    $LEIN run -n --configPath ../conf/benchmarkConf.yaml
-    cd ..
   elif [ "STOP_REDIS" = "$OPERATION" ];
   then
     stop_if_needed redis-server Redis
@@ -171,12 +168,12 @@ run() {
     $FLINK_DIR/bin/stop-cluster.sh
   elif [ "START_LOAD" = "$OPERATION" ];
   then
-    cd data
-    start_if_needed leiningen.core.main "Load Generation" 1 $LEIN run -r -t $LOAD --configPath ../$CONF_FILE
+    cd flink-injector
+    start_if_needed SocketInjector "Load Generation" 1 $MVN exec:java -Dexec.mainClass=SocketInjector  -Dexec.args="--redis localhost --port $GENERATOR_PORT --throughput $LOAD"
     cd ..
   elif [ "STOP_LOAD" = "$OPERATION" ];
   then
-    stop_if_needed leiningen.core.main "Load Generation"
+    stop_if_needed SocketInjector "Load Generation"
     cd data
     $LEIN run -g --configPath ../$CONF_FILE || true
     cd ..
@@ -198,15 +195,13 @@ run() {
   then
 #    run "START_ZK"
     run "START_REDIS"
-#    run "START_KAFKA"
     run "START_FLINK"
-    run "START_FLINK_PROCESSING"
     run "START_LOAD"
+    run "START_FLINK_PROCESSING"
     sleep $TEST_TIME
-    run "STOP_LOAD"
     run "STOP_FLINK_PROCESSING"
+    run "STOP_LOAD"
     run "STOP_FLINK"
-#    run "STOP_KAFKA"
     run "STOP_REDIS"
 #    run "STOP_ZK"
   elif [ "STOP_ALL" = "$OPERATION" ];
@@ -214,9 +209,8 @@ run() {
     run "STOP_LOAD"
     run "STOP_FLINK_PROCESSING"
     run "STOP_FLINK"
-    run "STOP_KAFKA"
     run "STOP_REDIS"
-    run "STOP_ZK"
+#    run "STOP_ZK"
   else
     if [ "HELP" != "$OPERATION" ];
     then

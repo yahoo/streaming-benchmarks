@@ -11,13 +11,24 @@ public class EventGenerator {
 
     private final static Logger LOG = Logger.getLogger(EventGenerator.class.getName());
 
-    private final int numCampaigns = 10;
-    private final int viewCapacityPerWindow = 10;
-    private final int eventCount = 10 * 1000000;
-    private final int timeDivisor = 10000; // 10 seconds
+    private final static int numCampaigns = 10;
+    private final static int viewCapacityPerWindow = 10;
+    private final static int eventCount = 10 * 1000000;
+    private final static int timeDivisor = 10000; // 10 seconds
 
-    private List<String> adTypes = new ArrayList<>();
-    private List<String> eventTypes = new ArrayList<>();
+    private final static String [] adTypes = new String[] {
+            "banner",
+            "modal",
+            "sponsored-search",
+            "mail",
+            "mobile"
+    };
+
+    private final static String []  eventTypes = new String[] {
+            "view",
+            "click",
+            "purchase"
+    };
 
     // lists of randomly generated UUIDs
     private List<String> ads;
@@ -34,16 +45,6 @@ public class EventGenerator {
      * @param redisHost URL of RedisDB
      */
     public EventGenerator(String redisHost) {
-
-        adTypes.add("banner");
-        adTypes.add("modal");
-        adTypes.add("sponsored-search");
-        adTypes.add("mail");
-        adTypes.add("mobile");
-
-        eventTypes.add("view");
-        eventTypes.add("click");
-        eventTypes.add("purchase");
 
         users = makeIds(100);
         pages = makeIds(100);
@@ -86,10 +87,10 @@ public class EventGenerator {
         String userid = users.get(index);
         index = randomGenerator.nextInt(pages.size());
         String pageid = pages.get(index);
-        index = randomGenerator.nextInt(adTypes.size());
-        String adType = adTypes.get(index);
-        index = randomGenerator.nextInt(eventTypes.size());
-        String eventType = eventTypes.get(index);
+        index = randomGenerator.nextInt(adTypes.length);
+        String adType = adTypes[index];
+        index = randomGenerator.nextInt(eventTypes.length);
+        String eventType = eventTypes[index];
         index = randomGenerator.nextInt(ads.size());
         String adid = ads.get(index);
 
@@ -114,6 +115,4 @@ public class EventGenerator {
 
         return list;
     }
-
-
 }
