@@ -130,6 +130,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>flink-benchmarks</module>
         <!--<module>spark-benchmarks</module>-->
         <module>flink-injector</module>
+        <module>cep-benchmark</module>
     </modules>
 
     <build>
