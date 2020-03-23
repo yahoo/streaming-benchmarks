@@ -16,7 +16,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spark.version>2.3.1</spark.version>
-        <kafka.version>0.8.2.1</kafka.version>
+        <kafka.version>2.4.1</kafka.version>
         <flink.version>1.6.0</flink.version>
         <storm.version>1.2.2</storm.version>
         <scala.binary.version>2.11</scala.binary.version>
@@ -28,7 +28,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <commons-cli.version>1.4</commons-cli.version>
         <snakeyaml.version>1.23</snakeyaml.version>
         <shade.version>3.1.1</shade.version>
-        <apex.version>3.4.0</apex.version>
+        <!-- <apex.version>3.4.0</apex.version> -->
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -130,7 +130,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>storm-benchmarks</module>
         <module>flink-benchmarks</module>
         <module>spark-benchmarks</module>
-        <module>apex-benchmarks</module>
+        <!-- <module>apex-benchmarks</module> -->
     </modules>
 
     <build>
