@@ -19,8 +19,8 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <kafka.version>2.4.1</kafka.version>
         <flink.version>1.10.0</flink.version>
         <storm.version>1.2.2</storm.version>
-        <scala.binary.version>2.11</scala.binary.version>
-        <scala.version>2.11.12</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
+        <scala.version>2.12.11</scala.version>
         <json.version>20180813</json.version>
         <jedis.version>2.9.0</jedis.version>
         <sedis.version>1.2.2</sedis.version>
@@ -28,7 +28,6 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <commons-cli.version>1.4</commons-cli.version>
         <snakeyaml.version>1.23</snakeyaml.version>
         <shade.version>3.1.1</shade.version>
-        <!-- <apex.version>3.4.0</apex.version> -->
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -109,12 +108,12 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming-kafka-0-8_${scala.binary.version}</artifactId>
+                <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sedis</groupId>
-                <artifactId>sedis_${scala.binary.version}</artifactId>
+                <artifactId>sedis_2.11</artifactId>
                 <version>${sedis.version}</version>
             </dependency>
             <dependency>

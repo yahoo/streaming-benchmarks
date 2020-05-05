@@ -47,11 +47,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-kafka-0-8_${scala.binary.version}</artifactId>
+            <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sedis</groupId>
-            <artifactId>sedis_${scala.binary.version}</artifactId>
+            <artifactId>sedis_2.11</artifactId>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
