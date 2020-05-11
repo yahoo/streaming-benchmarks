@@ -302,17 +302,17 @@ run() {
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
-  elif [ "SPARK_TEST" = "$OPERATION" ];
+  elif [ "SPARK_LEGACY_TEST" = "$OPERATION" ];
   then
     run "START_ZK"
     run "START_REDIS"
     run "START_KAFKA"
     run "START_SPARK"
-    run "START_SPARK_PROCESSING"
+    run "START_LEGACY_SPARK_PROCESSING"
     run "START_LOAD"
     sleep $TEST_TIME
     run "STOP_LOAD"
-    run "STOP_SPARK_PROCESSING"
+    run "STOP_LEGACY_SPARK_PROCESSING"
     run "STOP_SPARK"
     run "STOP_KAFKA"
     run "STOP_REDIS"
@@ -323,11 +323,11 @@ run() {
       run "START_REDIS"
       run "START_KAFKA"
       run "START_SPARK"
-      run "START_SPARK_PROCESSING"
+      run "START_SS_SPARK_PROCESSING"
       run "START_LOAD"
       sleep $TEST_TIME
       run "STOP_LOAD"
-      run "STOP_SPARK_PROCESSING"
+      run "STOP_SS_SPARK_PROCESSING"
       run "STOP_SPARK"
       run "STOP_KAFKA"
       run "STOP_REDIS"
@@ -378,7 +378,8 @@ run() {
     echo
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
-    echo "SPARK_TEST: run spark test (assumes SETUP is done)"
+    echo "SPARK_LEGACY_TEST: run spark dstream legacy test (assumes SETUP is done)"
+    echo "SPARK_SS_TEST: run spark structured streaming test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
     echo
     echo "HELP: print out this message"
