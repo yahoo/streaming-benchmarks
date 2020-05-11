@@ -153,6 +153,7 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
     }
   }
 
+  // TODO: Move all utility methods to Utils
   def joinHosts(hosts: Seq[String], port: String): String = {
     val joined = new StringBuilder();
     hosts.foreach({
