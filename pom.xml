@@ -15,7 +15,8 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spark.version>2.3.1</spark.version>
+        <beam.version>2.21.0</beam.version>
+        <spark.version>3.0.0-preview2</spark.version>
         <kafka.version>2.4.1</kafka.version>
         <flink.version>1.10.0</flink.version>
         <storm.version>1.2.2</storm.version>
@@ -24,13 +25,20 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <json.version>20180813</json.version>
         <jedis.version>2.9.0</jedis.version>
         <sedis.version>1.2.2</sedis.version>
+        <hadoop.client.version>2.8.3</hadoop.client.version>
         <slf4j.version>1.7.25</slf4j.version>
         <commons-cli.version>1.4</commons-cli.version>
         <snakeyaml.version>1.23</snakeyaml.version>
         <shade.version>3.1.1</shade.version>
     </properties>
     <dependencyManagement>
-        <dependencies>
+	 <dependencies>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>${hadoop.client.version}</version>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.storm</groupId>
                 <artifactId>storm-core</artifactId>
@@ -103,18 +111,38 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
                 <artifactId>spark-streaming_${scala.binary.version}</artifactId>
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
+                <artifactId>spark-streaming-kafka-0.10_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-sql-kafka-0.10_${scala.binary.version}</artifactId>
                 <version>${spark.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sedis</groupId>
                 <artifactId>sedis_2.11</artifactId>
                 <version>${sedis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.beam</groupId>
+                <artifactId>beam-runners-spark</artifactId>
+                <version>${beam.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.beam</groupId>
+                <artifactId>beam-runners-flink-1.10</artifactId>
+                <version>${beam.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.scala-lang</groupId>
@@ -128,7 +156,8 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>streaming-benchmark-common</module>
         <module>storm-benchmarks</module>
         <module>flink-benchmarks</module>
-        <module>spark-benchmarks</module>
+        <module>spark-legacy-benchmarks</module>
+        <module>spark-ss-benchmarks</module>
     </modules>
 
     <build>

@@ -10,14 +10,17 @@ LEIN=${LEIN:-lein}
 MVN=${MVN:-mvn}
 GIT=${GIT:-git}
 MAKE=${MAKE:-make}
+MVN_REPO=${REPO:-"https://repo.maven.apache.org/maven2"}
 
+BEAM_VERSION=${BEAM_VERSION:-"2.21.0"}
 KAFKA_VERSION=${KAFKA_VERSION:-"2.4.1"}
-REDIS_VERSION=${REDIS_VERSION:-"4.0.11"}
+REDIS_VERSION=${REDIS_VERSION:-"6.0.1"}
 SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.12"}
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"1.2.2"}
 FLINK_VERSION=${FLINK_VERSION:-"1.10.0"}
 SPARK_VERSION=${SPARK_VERSION:-"3.0.0-preview2"}
+HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 
 STORM_DIR="apache-storm-$STORM_VERSION"
 REDIS_DIR="redis-$REDIS_VERSION"
@@ -133,9 +136,10 @@ run() {
 	echo 'process.cores: 4' >> $CONF_FILE
 	echo 'storm.workers: 1' >> $CONF_FILE
 	echo 'storm.ackers: 2' >> $CONF_FILE
-	echo 'spark.batchtime: 2000' >> $CONF_FILE
+	echo 'spark.batch.time: 2000' >> $CONF_FILE
+	echo 'spark.continuos.time: 1000' >> $CONF_FILE
 
-    $MVN clean install -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
+    $MVN clean install -Dbeam.version="$BEAM_VERSION" -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
 
     #Fetch and build Redis
     REDIS_FILE="$REDIS_DIR.tar.gz"
@@ -154,8 +158,13 @@ run() {
     fetch_untar_file "$STORM_FILE" "$APACHE_MIRROR/storm/$STORM_DIR/$STORM_FILE"
 
     #Fetch Flink
-    FLINK_FILE="$FLINK_DIR-bin-hadoop27-scala_${SCALA_BIN_VERSION}.tgz"
+    # FLINK_FILE="$FLINK_DIR-bin-hadoop27-scala_${SCALA_BIN_VERSION}.tgz"
+    FLINK_FILE="$FLINK_DIR-bin-scala_${SCALA_BIN_VERSION}.tgz"
     fetch_untar_file "$FLINK_FILE" "$APACHE_MIRROR/flink/flink-$FLINK_VERSION/$FLINK_FILE"
+    # Flink on yarn setup requires pre-bundled hadoop jars
+    UBER_REF="flink-shaded-hadoop-2-uber"
+    curl -O "$MVN_REPO/org/apache/flink/$UBER_REF/$HADOOP_FLINK_BUNDLE_VERSION/$UBER_REF-$HADOOP_FLINK_BUNDLE_VERSION.jar"
+    mv "$UBER_REF-$HADOOP_FLINK_BUNDLE_VERSION.jar" "flink-$FLINK_VERSION/lib"
 
     #Fetch Spark
     SPARK_FILE="$SPARK_DIR.tgz"
@@ -233,13 +242,22 @@ run() {
   then
     "$STORM_DIR/bin/storm" kill -w 0 test-topo || true
     sleep 10
-  elif [ "START_SPARK_PROCESSING" = "$OPERATION" ];
+  elif [ "START_LEGACY_SPARK_PROCESSING" = "$OPERATION" ];
   then
     "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.KafkaRedisAdvertisingStream ./spark-benchmarks/target/spark-benchmarks-0.1.0.jar "$CONF_FILE" &
     sleep 5
-  elif [ "STOP_SPARK_PROCESSING" = "$OPERATION" ];
+  elif [ "STOP_LEGACY_SPARK_PROCESSING" = "$OPERATION" ];
   then
     stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"
+  elif [ "START_SS_SPARK_PROCESSING" = "$OPERATION" ];
+    then
+      echo "Please enter one of the following processing mode for structured streaming: 1. Batch 2. Continuous"
+      read MODE
+      "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.structuredstreaming.KafkaRedisStructuredStreamingAdvertisingStream ./spark-benchmarks/target/spark-benchmarks-0.1.0.jar "$CONF_FILE" "$MODE" &
+      sleep 5
+  elif [ "STOP_SS_SPARK_PROCESSING" = "$OPERATION" ];
+    then
+      stop_if_needed spark.benchmark.structuredstreaming.KafkaRedisStructuredStreamingAdvertisingStream "Spark Client Process"
   elif [ "START_FLINK_PROCESSING" = "$OPERATION" ];
   then
     "$FLINK_DIR/bin/flink" run ./flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE &
@@ -299,6 +317,21 @@ run() {
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
+  elif [ "SPARK_SS_TEST" = "$OPERATION" ];
+    then
+      run "START_ZK"
+      run "START_REDIS"
+      run "START_KAFKA"
+      run "START_SPARK"
+      run "START_SPARK_PROCESSING"
+      run "START_LOAD"
+      sleep $TEST_TIME
+      run "STOP_LOAD"
+      run "STOP_SPARK_PROCESSING"
+      run "STOP_SPARK"
+      run "STOP_KAFKA"
+      run "STOP_REDIS"
+      run "STOP_ZK"
   elif [ "STOP_ALL" = "$OPERATION" ];
   then
     run "STOP_LOAD"
@@ -338,8 +371,10 @@ run() {
     echo "STOP_STORM_TOPOLOGY: kill the storm test topology"
     echo "START_FLINK_PROCESSING: run the flink test processing"
     echo "STOP_FLINK_PROCESSSING: kill the flink test processing"
-    echo "START_SPARK_PROCESSING: run the spark test processing"
-    echo "STOP_SPARK_PROCESSSING: kill the spark test processing"
+    echo "START_LEGACY_SPARK_PROCESSING: run the spark legacy dstream test processing"
+    echo "STOP_LEGACY_SPARK_PROCESSSING: kill the spark legacy dstream test processing"
+    echo "START_SS_SPARK_PROCESSING: run the spark structured streaming test processing"
+    echo "STOP_SS_SPARK_PROCESSING: kill spark structured streaming test processing"
     echo
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"

@@ -13,7 +13,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spark-benchmarks</artifactId>
+    <artifactId>spark-legacy-benchmarks</artifactId>
 
     <repositories>
         <repository>
@@ -48,6 +48,7 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sedis</groupId>

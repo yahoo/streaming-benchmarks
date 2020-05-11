@@ -5,36 +5,52 @@
 
 // scalastyle:off println
 
-package spark.benchmark
+package spark.benchmark.structuredstreaming
 
 import java.util
 
+import org.apache.spark.streaming._
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.streaming.Trigger
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
-import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
-
-import org.apache.spark.streaming
-import org.apache.spark.streaming.{Milliseconds, StreamingContext}
-
-import org.apache.spark.streaming.kafka010.KafkaUtils
-import org.apache.spark.streaming.dstream
 import org.apache.spark.SparkConf
 import org.json.JSONObject
 import org.sedis._
 import redis.clients.jedis._
+
 import scala.collection.Iterator
-import org.apache.spark.rdd.RDD
-import java.util.{UUID, LinkedHashMap}
+import java.util.UUID
+
 import compat.Platform.currentTime
 import benchmark.common.Utils
-import scala.collection.JavaConverters._
-import scala.collection.mutable.Buffer
 
-object KafkaRedisAdvertisingStream {
+import scala.collection.JavaConverters._
+
+/**
+  * Spark Structured Streaming API - Both batch and continuous mode available
+  */
+object KafkaRedisStructuredStreamingAdvertisingStream {
   def main(args: Array[String]) {
 
+    if (args.length < 2 &&
+      !(args(1).equalsIgnoreCase("batch") ||
+        args(1).equalsIgnoreCase("continuos"))) {
+      println("Please follow the spark-submit convention: \n" + "" +
+        "\"$SPARK_DIR/bin/spark-submit\" " +
+        "--master spark://localhost:7077 " +
+        "--class spark.benchmark.structuredstreaming.KafkaRedisStructuredStreamingAdvertisingStream " +
+        "./spark-benchmarks/target/spark-benchmarks-0.1.0.jar \"$CONF_FILE\" \"$MODE\" &\n")
+      println("mode should be Batch or Continuous")
+      System.exit(1)
+    }
     val commonConfig = Utils.findAndReadConfigFile(args(0), true).asInstanceOf[java.util.Map[String, Any]];
-    val batchSize = commonConfig.get("spark.batchtime") match {
+    val mode = args(1)
+    val batchTriggerTime = commonConfig.get("spark.batch.time") match {
+      case n: Number => n.longValue()
+      case other => throw new ClassCastException(other + " not a Number")
+    }
+    val continuosTriggerTime = commonConfig.get("spark.continous.time") match {
       case n: Number => n.longValue()
       case other => throw new ClassCastException(other + " not a Number")
     }
@@ -47,10 +63,6 @@ object KafkaRedisAdvertisingStream {
       case s: String => s
       case other => throw new ClassCastException(other + " not a String")
     }
-    
-    // Create context with 2 second batch interval
-    val sparkConf = new SparkConf().setAppName("KafkaRedisAdvertisingStream")
-    val ssc = new StreamingContext(sparkConf, Milliseconds(batchSize))
 
     val kafkaHosts = commonConfig.get("kafka.brokers").asInstanceOf[java.util.List[String]] match {
       case l: java.util.List[String] => l.asScala.toSeq
@@ -62,62 +74,83 @@ object KafkaRedisAdvertisingStream {
     }
 
     // Create direct kafka stream with brokers and topics
-    val topicsSet = Set(topic)
     val brokers = joinHosts(kafkaHosts, kafkaPort)
-    val kafkaParams = Map[String, Object](
-      "metadata.broker.list" -> brokers,
-      "auto.offset.reset" -> "smallest",
-      "key.deserializer" -> classOf[StringDeserializer],
-      "value.deserializer" -> classOf[StringDeserializer]
-    )
+
+    val spark = SparkSession
+      .builder
+      .appName("KafkaRedisStructuredStreamingAdvertisingStream")
+      .getOrCreate()
+
     System.err.println(
       "Trying to connect to Kafka at " + brokers)
-    val messages = KafkaUtils.createDirectStream[String, String](
-      ssc,
-      PreferConsistent,
-      Subscribe[String, String](topicsSet, kafkaParams)
-    )
 
+    import spark.implicits._
+
+    val messages = spark
+      .readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", kafkaHosts.toString())
+      .option("subscribe", topic)
+      .option("auto.offset.reset", "smallest")
+      .load()
     //We can repartition to use more executors if desired
     //    val messages_repartitioned = messages.repartition(10)
 
+    val query = messages
+      .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+      .writeStream
+      .foreachBatch { (df: DataFrame, id: Long) =>
+      //take the second tuple of the implicit Tuple2 argument _, by calling the Tuple2 method ._2
+      //The first tuple is the key, which we don't use in this benchmark
+      val kafkaRawData = df.map(row => row.getString(2))
 
-    //take the second tuple of the implicit Tuple2 argument _, by calling the Tuple2 method ._2
-    //The first tuple is the key, which we don't use in this benchmark
-    val kafkaRawData = messages.map(_.value())
+      //Parse the String as JSON
+      val kafkaData = kafkaRawData.map(parseJson(_))
 
-    //Parse the String as JSON
-    val kafkaData = kafkaRawData.map(parseJson(_))
+      //Filter the records if event type is "view"
+      val filteredOnView = kafkaData.filter(_(4).equals("view"))
 
-    //Filter the records if event type is "view"
-    val filteredOnView = kafkaData.filter(_(4).equals("view"))
+      filteredOnView.printSchema()
+      //project the event, basically filter the fields.
+      val projected = filteredOnView.map(eventProjection(_))
 
-    //project the event, basically filter the fileds.
-    val projected = filteredOnView.map(eventProjection(_))
+      //Note that the Storm benchmark caches the results from Redis, we don't do that here yet
+      val redisJoined = projected.mapPartitions(queryRedisTopLevel(_, redisHost))
 
-    //Note that the Storm benchmark caches the results from Redis, we don't do that here yet
-    val redisJoined = projected.mapPartitions(queryRedisTopLevel(_, redisHost), false)
+      val campaign_timeStamp = redisJoined.map(campaignTime(_))
 
-    val campaign_timeStamp = redisJoined.map(campaignTime(_))
-    //each record in the RDD: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
-    //DStream[((String,Long),String)]
+      campaign_timeStamp.printSchema()
 
-    // since we're just counting use reduceByKey
-    val totalEventsPerCampaignTime = campaign_timeStamp.mapValues(_ => 1).reduceByKey(_ + _)
+        //each record in the dataset: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
+      // Implementing equivalent dataset reduceByKey
+      val totalEventsPerCampaignTime = campaign_timeStamp
+        .groupByKey(k => k._1)
+        .mapGroups((k, it) => {
+          var sum = 0
+          for (v <- it) {
+            sum += 1
+          }
+          (k, sum)
+      })
+      //Repartition here if desired to use more or less executors
+      //    val totalEventsPerCampaignTime_repartitioned = totalEventsPerCampaignTime.repartition(20)
 
-    //DStream[((String,Long), Int)]
-    //each record: key:(campaign_id, window_time),  Value: number of events
-
-    //Repartition here if desired to use more or less executors
-    //    val totalEventsPerCampaignTime_repartitioned = totalEventsPerCampaignTime.repartition(20)
-
-    totalEventsPerCampaignTime.foreachRDD { rdd =>
-      rdd.foreachPartition(writeRedisTopLevel(_, redisHost))
+      // TODO: Type mismatch, need to fix it for dataset
+      //totalEventsPerCampaignTime.toDF().rdd.foreachPartition(writeRedisTopLevel(_, redisHost))
     }
 
-    // Start the computation
-    ssc.start
-    ssc.awaitTermination
+    // TODO: Refactor for batch and continuos mode
+    if (mode.equalsIgnoreCase("continuous")) {
+      val queryContext = query
+        .trigger(Trigger.Continuous(continuosTriggerTime))
+        .start()
+      queryContext.awaitTermination()
+    } else {
+      val queryContext = query
+        .trigger(Trigger.ProcessingTime(batchTriggerTime))
+        .start()
+      queryContext.awaitTermination()
+    }
   }
 
   def joinHosts(hosts: Seq[String], port: String): String = {
@@ -129,7 +162,7 @@ object KafkaRedisAdvertisingStream {
 
       joined.append(_).append(":").append(port);
     })
-    return joined.toString();
+    return joined.toString;
   }
 
   def parseJson(jsonString: String): Array[String] = {
