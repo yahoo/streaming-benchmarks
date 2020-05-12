@@ -88,7 +88,7 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
     val messages = spark
       .readStream
       .format("kafka")
-      .option("kafka.bootstrap.servers", kafkaHosts.toString())
+      .option("kafka.bootstrap.servers", brokers)
       .option("subscribe", topic)
       .option("auto.offset.reset", "smallest")
       .load()
