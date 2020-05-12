@@ -50,7 +50,7 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
       case n: Number => n.longValue()
       case other => throw new ClassCastException(other + " not a Number")
     }
-    val continuosTriggerTime = commonConfig.get("spark.continous.time") match {
+    val continuosTriggerTime = commonConfig.get("spark.continuous.time") match {
       case n: Number => n.longValue()
       case other => throw new ClassCastException(other + " not a Number")
     }
