@@ -137,7 +137,7 @@ run() {
 	echo 'storm.workers: 1' >> $CONF_FILE
 	echo 'storm.ackers: 2' >> $CONF_FILE
 	echo 'spark.batch.time: 2000' >> $CONF_FILE
-	echo 'spark.continuos.time: 1000' >> $CONF_FILE
+	echo 'spark.continuous.time: 1000' >> $CONF_FILE
 
     $MVN clean install -Dbeam.version="$BEAM_VERSION" -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
 

@@ -41,7 +41,7 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
         "--master spark://localhost:7077 " +
         "--class spark.benchmark.structuredstreaming.KafkaRedisStructuredStreamingAdvertisingStream " +
         "./spark-benchmarks/target/spark-benchmarks-0.1.0.jar \"$CONF_FILE\" \"$MODE\" &\n")
-      println("mode should be Batch or Continuous")
+      println("MODE should be Batch or Continuous")
       System.exit(1)
     }
     val commonConfig = Utils.findAndReadConfigFile(args(0), true).asInstanceOf[java.util.Map[String, Any]];
@@ -63,7 +63,6 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
       case s: String => s
       case other => throw new ClassCastException(other + " not a String")
     }
-
     val kafkaHosts = commonConfig.get("kafka.brokers").asInstanceOf[java.util.List[String]] match {
       case l: java.util.List[String] => l.asScala.toSeq
       case other => throw new ClassCastException(other + " not a List[String]")
