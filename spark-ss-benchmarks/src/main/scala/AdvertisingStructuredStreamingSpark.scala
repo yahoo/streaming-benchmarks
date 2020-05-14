@@ -27,20 +27,8 @@ import scala.collection.JavaConverters._
 object KafkaRedisSSContinuousAdvertisingStream {
   def main(args: Array[String]) {
 
-    if (args.length < 2 &&
-      !(args(1).equalsIgnoreCase("batch") ||
-        args(1).equalsIgnoreCase("continuos"))) {
-      println("Please follow the spark-submit convention: \n" + "" +
-        "\"$SPARK_DIR/bin/spark-submit\" " +
-        "--master spark://localhost:7077 " +
-        "--class spark.benchmark.structuredstreaming.KafkaRedisStructuredStreamingAdvertisingStream " +
-        "./spark-benchmarks/target/spark-benchmarks-0.1.0.jar \"$CONF_FILE\" \"$MODE\" &\n")
-      println("MODE should be Batch or Continuous")
-      System.exit(1)
-    }
     val commonConfig = Utils.findAndReadConfigFile(args(0), true).asInstanceOf[java.util.Map[String, Any]];
-    val mode = args(1)
-
+    
     val continuosTriggerTime = commonConfig.get("spark.continuous.time") match {
       case n: Number => n.longValue()
       case other => throw new ClassCastException(other + " not a Number")
@@ -82,14 +70,11 @@ object KafkaRedisSSContinuousAdvertisingStream {
       .option("kafka.bootstrap.servers", brokers)
       .option("subscribe", topic)
       .load()
-
-    // Deserializing the streaming data frame
-    val df = messages
       .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
 
     // The first tuple is the key, which we don't use in this benchmark
     // Extract the value
-    val kafkaRawData = df.map(row => row.getString(1))
+    val kafkaRawData = messages.map(row => row.getString(1))
 
     //Parse the String as JSON
     val kafkaData = kafkaRawData.map(parseJson(_))
@@ -189,7 +174,6 @@ object KafkaRedisSSContinuousAdvertisingStream {
     ((event(0),time_divisor * (event(2).toLong / time_divisor)), event(1))
     //Key: (campaign_id, window_time),  Value: ad_id
   }
-
 
   private def writeWindow(pool: Pool, campaign_window_counts: ((String, Long), String)) : String = {
     val campaign_window_pair = campaign_window_counts._1
