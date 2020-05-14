@@ -66,8 +66,9 @@ object KafkaRedisDStreamAdvertisingStream {
     val topicsSet = Set(topic)
     val brokers = joinHosts(kafkaHosts, kafkaPort)
     val kafkaParams = Map[String, Object](
-      "metadata.broker.list" -> brokers,
-      "auto.offset.reset" -> "smallest",
+      "bootstrap.servers" -> brokers,
+      "group.id" -> "dstream-benchmark",
+      "auto.offset.reset" -> "earliest",
       "key.deserializer" -> classOf[StringDeserializer],
       "value.deserializer" -> classOf[StringDeserializer]
     )

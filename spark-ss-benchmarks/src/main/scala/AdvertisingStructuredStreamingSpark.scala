@@ -9,22 +9,17 @@ package spark.benchmark.structuredstreaming
 
 import java.util
 
-import org.apache.spark.streaming._
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, ForeachWriter, SparkSession}
 import org.apache.spark.sql.streaming.Trigger
-import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.spark.SparkConf
 import org.json.JSONObject
 import org.sedis._
 import redis.clients.jedis._
-
-import scala.collection.Iterator
 import java.util.UUID
 
 import compat.Platform.currentTime
 import benchmark.common.Utils
 
+import scala.collection.Iterator
 import scala.collection.JavaConverters._
 
 /**
@@ -90,53 +85,69 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
       .format("kafka")
       .option("kafka.bootstrap.servers", brokers)
       .option("subscribe", topic)
-      .option("auto.offset.reset", "smallest")
       .load()
-    //We can repartition to use more executors if desired
-    //    val messages_repartitioned = messages.repartition(10)
 
-    val query = messages
+    // Deserializing the streaming data frame
+    val df = messages
       .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+
+    // The first tuple is the key, which we don't use in this benchmark
+    // Extract the value
+    val kafkaRawData = df.map(row => row.getString(1))
+
+    //Parse the String as JSON
+    val kafkaData = kafkaRawData.map(parseJson(_))
+
+    //Filter the records if event type is "view"
+    val filteredOnView = kafkaData.filter(_(4).equals("view"))
+
+    //project the event, basically filter the fields.
+    val projected = filteredOnView.map(eventProjection(_))
+
+    //val campaign_timeStamp = redisJoined.map(campaignTime(_))
+
+
+    // TODO: Structured Streaming code has to change
+    // Need to figure out aggregation part
+    val query = projected
       .writeStream
-      .foreachBatch { (df: DataFrame, id: Long) =>
-      //take the second tuple of the implicit Tuple2 argument _, by calling the Tuple2 method ._2
-      //The first tuple is the key, which we don't use in this benchmark
-      val kafkaRawData = df.map(row => row.getString(2))
-
-      //Parse the String as JSON
-      val kafkaData = kafkaRawData.map(parseJson(_))
-
-      //Filter the records if event type is "view"
-      val filteredOnView = kafkaData.filter(_(4).equals("view"))
-
-      filteredOnView.printSchema()
-      //project the event, basically filter the fields.
-      val projected = filteredOnView.map(eventProjection(_))
-
-      //Note that the Storm benchmark caches the results from Redis, we don't do that here yet
-      val redisJoined = projected.mapPartitions(queryRedisTopLevel(_, redisHost))
-
-      val campaign_timeStamp = redisJoined.map(campaignTime(_))
-
-      campaign_timeStamp.printSchema()
-
-        //each record in the dataset: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
-      // Implementing equivalent dataset reduceByKey
-      val totalEventsPerCampaignTime = campaign_timeStamp
-        .groupByKey(k => k._1)
-        .mapGroups((k, it) => {
-          var sum = 0
-          for (v <- it) {
-            sum += 1
-          }
-          (k, sum)
-      })
-      //Repartition here if desired to use more or less executors
-      //    val totalEventsPerCampaignTime_repartitioned = totalEventsPerCampaignTime.repartition(20)
-
-      // TODO: Type mismatch, need to fix it for dataset
-      //totalEventsPerCampaignTime.toDF().rdd.foreachPartition(writeRedisTopLevel(_, redisHost))
-    }
+      .format("console")
+//      .foreach { new ForeachWriter[Array[String]] {
+//        var pool: Pool = _
+//
+//        override def open(partitionId: Long, epochId: Long): Boolean = {
+//          true
+//        }
+//
+//        override def process(events: Array[String]): Unit = {
+//          if (pool == null) {
+//            pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
+//          }
+//          var ad_to_campaign = new util.HashMap[String, String]();
+//          val redisJoined = queryRedis(pool, ad_to_campaign, events)
+//
+//          //each record: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
+//          val campaign_timeStamp = campaignTime(redisJoined)
+//
+//
+//          //each record: key:(campaign_id, window_time),  Value: number of events
+//          //val totalEventsPerCampaignTime = campaign_timeStamp.
+//
+//          //Repartition here if desired to use more or less executors
+//          //    val totalEventsPerCampaignTime_repartitioned = totalEventsPerCampaignTime.repartition(20)
+//
+//          //writeWindow(pool, campaign_timeStamp)
+//
+//
+//        }
+//
+//        override def close(errorOrNull: Throwable): Unit = {
+//          if (pool != null) {
+//            pool.underlying.getResource.close
+//          }
+//        }
+//      }
+//    }
 
     // TODO: Refactor for batch and continuos mode
     if (mode.equalsIgnoreCase("continuous")) {
@@ -217,19 +228,12 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
     //Key: (campaign_id, window_time),  Value: ad_id
   }
 
-  def writeRedisTopLevel(campaign_window_counts_Iterator: Iterator[((String, Long), Int)], redisHost: String) {
-    val pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
 
-    campaign_window_counts_Iterator.foreach(campaign_window_counts => writeWindow(pool, campaign_window_counts))
-
-    pool.underlying.getResource.close
-  }
-
-  private def writeWindow(pool: Pool, campaign_window_counts: ((String, Long), Int)) : String = {
+  private def writeWindow(pool: Pool, campaign_window_counts: ((String, Long), String)) : String = {
     val campaign_window_pair = campaign_window_counts._1
     val campaign = campaign_window_pair._1
     val window_timestamp = campaign_window_pair._2.toString
-    val window_seenCount = campaign_window_counts._2
+    val window_seenCount = 1700
     pool.withJedisClient { client =>
 
       val dressUp = Dress.up(client)

@@ -251,9 +251,10 @@ run() {
     stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"
   elif [ "START_SS_SPARK_PROCESSING" = "$OPERATION" ];
     then
-      echo "Please enter one of the following processing mode for structured streaming: 1. Batch 2. Continuous"
-      read MODE
-      "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.structuredstreaming.KafkaRedisStructuredStreamingAdvertisingStream ./spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar "$CONF_FILE" "$MODE" &
+      #echo "Please enter one of the following processing mode for structured streaming: 1. Batch 2. Continuous"
+      #read MODE
+      MODE=batch
+      "$SPARK_DIR/bin/spark-submit" --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0-preview2 --master spark://localhost:7077 --class spark.benchmark.structuredstreaming.KafkaRedisStructuredStreamingAdvertisingStream ./spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar "$CONF_FILE" "$MODE" &
       sleep 5
   elif [ "STOP_SS_SPARK_PROCESSING" = "$OPERATION" ];
     then
@@ -335,6 +336,7 @@ run() {
   elif [ "STOP_ALL" = "$OPERATION" ];
   then
     run "STOP_LOAD"
+    run "STOP_LEGACY_SPARK_PROCESSING"
     run "STOP_SS_SPARK_PROCESSING"
     run "STOP_SPARK"
     run "STOP_FLINK_PROCESSING"

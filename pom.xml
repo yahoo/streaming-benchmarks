@@ -21,7 +21,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <flink.version>1.10.0</flink.version>
         <storm.version>1.2.2</storm.version>
         <scala.binary.version>2.12</scala.binary.version>
-        <scala.version>2.12.11</scala.version>
+        <scala.version>2.12.10</scala.version>
         <json.version>20180813</json.version>
         <jedis.version>2.9.0</jedis.version>
         <sedis.version>1.2.2</sedis.version>
