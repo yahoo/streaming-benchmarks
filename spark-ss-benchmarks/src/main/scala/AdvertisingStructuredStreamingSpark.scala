@@ -28,7 +28,7 @@ object KafkaRedisSSContinuousAdvertisingStream {
   def main(args: Array[String]) {
 
     val commonConfig = Utils.findAndReadConfigFile(args(0), true).asInstanceOf[java.util.Map[String, Any]];
-    
+
     val continuosTriggerTime = commonConfig.get("spark.continuous.time") match {
       case n: Number => n.longValue()
       case other => throw new ClassCastException(other + " not a Number")
@@ -92,13 +92,13 @@ object KafkaRedisSSContinuousAdvertisingStream {
           var pool: Pool = _
 
           override def open(partitionId: Long, epochId: Long): Boolean = {
-            if (pool == null) {
-              pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
-            }
             true
           }
 
           override def process(events: Array[String]): Unit = {
+            if (pool == null) {
+              pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
+            }
             val redisJoined = queryRedis(pool, new util.HashMap[String, String](), events)
 
             //each record: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
