@@ -9,7 +9,7 @@ package spark.benchmark.structuredstreaming
 
 import java.util
 
-import org.apache.spark.sql.{DataFrame, Dataset, ForeachWriter, SparkSession}
+import org.apache.spark.sql.{ForeachWriter, SparkSession}
 import org.apache.spark.sql.streaming.Trigger
 import org.json.JSONObject
 import org.sedis._
@@ -19,13 +19,12 @@ import java.util.UUID
 import compat.Platform.currentTime
 import benchmark.common.Utils
 
-import scala.collection.Iterator
 import scala.collection.JavaConverters._
 
 /**
   * Spark Structured Streaming API - Both batch and continuous mode available
   */
-object KafkaRedisStructuredStreamingAdvertisingStream {
+object KafkaRedisSSContinuousAdvertisingStream {
   def main(args: Array[String]) {
 
     if (args.length < 2 &&
@@ -41,10 +40,7 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
     }
     val commonConfig = Utils.findAndReadConfigFile(args(0), true).asInstanceOf[java.util.Map[String, Any]];
     val mode = args(1)
-    val batchTriggerTime = commonConfig.get("spark.batch.time") match {
-      case n: Number => n.longValue()
-      case other => throw new ClassCastException(other + " not a Number")
-    }
+
     val continuosTriggerTime = commonConfig.get("spark.continuous.time") match {
       case n: Number => n.longValue()
       case other => throw new ClassCastException(other + " not a Number")
@@ -99,68 +95,42 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
     val kafkaData = kafkaRawData.map(parseJson(_))
 
     //Filter the records if event type is "view"
-    val filteredOnView = kafkaData.filter(_(4).equals("view"))
+    val filteredOnView = kafkaData.filter(_ (4).equals("view"))
 
     //project the event, basically filter the fields.
     val projected = filteredOnView.map(eventProjection(_))
 
-    //val campaign_timeStamp = redisJoined.map(campaignTime(_))
-
-
-    // TODO: Structured Streaming code has to change
-    // Need to figure out aggregation part
     val query = projected
       .writeStream
-      .format("console")
-//      .foreach { new ForeachWriter[Array[String]] {
-//        var pool: Pool = _
-//
-//        override def open(partitionId: Long, epochId: Long): Boolean = {
-//          true
-//        }
-//
-//        override def process(events: Array[String]): Unit = {
-//          if (pool == null) {
-//            pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
-//          }
-//          var ad_to_campaign = new util.HashMap[String, String]();
-//          val redisJoined = queryRedis(pool, ad_to_campaign, events)
-//
-//          //each record: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
-//          val campaign_timeStamp = campaignTime(redisJoined)
-//
-//
-//          //each record: key:(campaign_id, window_time),  Value: number of events
-//          //val totalEventsPerCampaignTime = campaign_timeStamp.
-//
-//          //Repartition here if desired to use more or less executors
-//          //    val totalEventsPerCampaignTime_repartitioned = totalEventsPerCampaignTime.repartition(20)
-//
-//          //writeWindow(pool, campaign_timeStamp)
-//
-//
-//        }
-//
-//        override def close(errorOrNull: Throwable): Unit = {
-//          if (pool != null) {
-//            pool.underlying.getResource.close
-//          }
-//        }
-//      }
-//    }
+      .foreach {
+        new ForeachWriter[Array[String]] {
+          var pool: Pool = _
 
-    // TODO: Refactor for batch and continuos mode
-    if (mode.equalsIgnoreCase("continuous")) {
-      val queryContext = query
-        .trigger(Trigger.Continuous(continuosTriggerTime))
-        .start()
-      queryContext.awaitTermination()
-    } else {
-      val queryContext = query
-        .trigger(Trigger.ProcessingTime(batchTriggerTime))
-        .start()
-      queryContext.awaitTermination()
-    }
+          override def open(partitionId: Long, epochId: Long): Boolean = {
+            if (pool == null) {
+              pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
+            }
+            true
+          }
+
+          override def process(events: Array[String]): Unit = {
+            val redisJoined = queryRedis(pool, new util.HashMap[String, String](), events)
+
+            //each record: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
+            writeWindow(pool, campaignTime(redisJoined))
+          }
+
+          override def close(errorOrNull: Throwable): Unit = {
+            if (pool != null) {
+              pool.underlying.getResource.close
+            }
+          }
+        }
+      }
+      .trigger(Trigger.Continuous(continuosTriggerTime))
+      .start()
+
+    query.awaitTermination()
   }
 
   // TODO: Move all utility methods to Utils
@@ -194,18 +164,10 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
       event(5)) //event_time
   }
 
-  def queryRedisTopLevel(eventsIterator: Iterator[Array[String]], redisHost: String): Iterator[Array[String]] = {
-    val pool = new Pool(new JedisPool(new JedisPoolConfig(), redisHost, 6379, 2000))
-    var ad_to_campaign = new util.HashMap[String, String]();
-    val eventsIteratorMap = eventsIterator.map(event => queryRedis(pool, ad_to_campaign, event))
-    pool.underlying.getResource.close
-    return eventsIteratorMap
-  }
-
   def queryRedis(pool: Pool, ad_to_campaign: util.HashMap[String, String], event: Array[String]): Array[String] = {
     val ad_id = event(0)
     val campaign_id_cache = ad_to_campaign.get(ad_id)
-    if (campaign_id_cache==null) {
+    if (campaign_id_cache ==null) {
       pool.withJedisClient { client =>
         val campaign_id_temp = Dress.up(client).get(ad_id)
         if (campaign_id_temp != None) {
@@ -232,8 +194,8 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
   private def writeWindow(pool: Pool, campaign_window_counts: ((String, Long), String)) : String = {
     val campaign_window_pair = campaign_window_counts._1
     val campaign = campaign_window_pair._1
+    val window_seenCount = 1
     val window_timestamp = campaign_window_pair._2.toString
-    val window_seenCount = 1700
     pool.withJedisClient { client =>
 
       val dressUp = Dress.up(client)
@@ -255,3 +217,4 @@ object KafkaRedisStructuredStreamingAdvertisingStream {
 
   }
 }
+
