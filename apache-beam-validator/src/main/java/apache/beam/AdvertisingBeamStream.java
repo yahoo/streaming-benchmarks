@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * To Run:  flink run target/flink-benchmarks-0.1.0-AdvertisingTopologyNative.jar  --confPath "../conf/benchmarkConf.yaml"
+ * To Run:
  */
 public class AdvertisingBeamStream {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AdvertisingTopologyNative.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AdvertisingBeamStream.class);
 
     public static void main(final String[] args) throws Exception {
 

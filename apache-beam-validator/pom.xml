@@ -27,14 +27,24 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-runners-flink-1.10</artifactId>
+	    <artifactId>beam-runners-flink-${beam.flink.runner.version}</artifactId>
             <version>${beam.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-spark</artifactId>
             <version>${beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+	    <artifactId>spark-core_${beam.scala.binary.version}</artifactId>
+            <version>${beam.spark.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+	    <artifactId>spark-streaming_${beam.scala.binary.version}</artifactId>
+            <version>${beam.spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -52,7 +62,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <program-class>apache.beam.AdvertisingStreamFilter</program-class>
+                            <program-class>apache.beam.AdvertisingBeamStream</program-class>
                         </manifestEntries>
                     </archive>
                 </configuration>
