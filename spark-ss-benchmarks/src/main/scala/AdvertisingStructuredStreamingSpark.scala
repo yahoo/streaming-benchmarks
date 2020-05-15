@@ -102,7 +102,7 @@ object KafkaRedisSSContinuousAdvertisingStream {
             val redisJoined = queryRedis(pool, new util.HashMap[String, String](), events)
 
             //each record: key:(campaign_id : String, window_time: Long),  Value: (ad_id : String)
-            writeWindow(pool, campaignTime(redisJoined))
+            writeWindow(pool, (campaignTime(redisJoined)._1, 1))
           }
 
           override def close(errorOrNull: Throwable): Unit = {
@@ -175,10 +175,10 @@ object KafkaRedisSSContinuousAdvertisingStream {
     //Key: (campaign_id, window_time),  Value: ad_id
   }
 
-  private def writeWindow(pool: Pool, campaign_window_counts: ((String, Long), String)) : String = {
+  private def writeWindow(pool: Pool, campaign_window_counts: ((String, Long), Int)) : String = {
     val campaign_window_pair = campaign_window_counts._1
     val campaign = campaign_window_pair._1
-    val window_seenCount = 1
+    val window_seenCount = campaign_window_counts._2
     val window_timestamp = campaign_window_pair._2.toString
     pool.withJedisClient { client =>
 
