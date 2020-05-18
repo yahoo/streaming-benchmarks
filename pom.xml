@@ -22,7 +22,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <beam.scala.binary.version>2.11</beam.scala.binary.version>
         <kafka.version>2.4.1</kafka.version>
         <flink.version>1.10.0</flink.version>
-        <storm.version>1.2.2</storm.version>
+        <storm.version>2.1.0</storm.version>
         <scala.binary.version>2.12</scala.binary.version>
         <scala.version>2.12.10</scala.version>
         <json.version>20180813</json.version>
@@ -49,7 +49,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
             </dependency>
             <dependency>
                 <groupId>org.apache.storm</groupId>
-                <artifactId>storm-kafka</artifactId>
+                <artifactId>storm-kafka-client</artifactId>
                 <version>${storm.version}</version>
             </dependency>
             <dependency>
