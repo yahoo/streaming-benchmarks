@@ -159,7 +159,7 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
         <module>streaming-benchmark-common</module>
         <module>storm-benchmarks</module>
         <module>flink-benchmarks</module>
-        <module>spark-legacy-benchmarks</module>
+        <module>spark-dstream-benchmarks</module>
         <module>spark-ss-benchmarks</module>
         <module>apache-beam-validator</module>
     </modules>

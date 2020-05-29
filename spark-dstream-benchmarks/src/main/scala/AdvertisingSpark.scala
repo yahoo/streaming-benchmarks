@@ -5,7 +5,7 @@
 
 // scalastyle:off println
 
-package spark.benchmark.legacy
+package spark.benchmark.dstream
 
 import java.util
 

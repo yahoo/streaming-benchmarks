@@ -161,10 +161,10 @@ run() {
     # FLINK_FILE="$FLINK_DIR-bin-hadoop27-scala_${SCALA_BIN_VERSION}.tgz"
     FLINK_FILE="$FLINK_DIR-bin-scala_${SCALA_BIN_VERSION}.tgz"
     fetch_untar_file "$FLINK_FILE" "$APACHE_MIRROR/flink/flink-$FLINK_VERSION/$FLINK_FILE"
-    # Flink on yarn setup requires pre-bundled hadoop jars
-    UBER_REF="flink-shaded-hadoop-2-uber"
-    curl -O "$MVN_REPO/org/apache/flink/$UBER_REF/$HADOOP_FLINK_BUNDLE_VERSION/$UBER_REF-$HADOOP_FLINK_BUNDLE_VERSION.jar"
-    mv "$UBER_REF-$HADOOP_FLINK_BUNDLE_VERSION.jar" "flink-$FLINK_VERSION/lib"
+    # TODO: Flink on yarn setup requires pre-bundled hadoop jars
+    # UBER_REF="flink-shaded-hadoop-2-uber"
+    # curl -O "$MVN_REPO/org/apache/flink/$UBER_REF/$HADOOP_FLINK_BUNDLE_VERSION/$UBER_REF-$HADOOP_FLINK_BUNDLE_VERSION.jar"
+    # mv "$UBER_REF-$HADOOP_FLINK_BUNDLE_VERSION.jar" "flink-$FLINK_VERSION/lib"
 
     #Fetch Spark
     SPARK_FILE="$SPARK_DIR.tgz"
@@ -242,11 +242,11 @@ run() {
   then
     "$STORM_DIR/bin/storm" kill -w 0 test-topo || true
     sleep 10
-  elif [ "START_LEGACY_SPARK_PROCESSING" = "$OPERATION" ];
+  elif [ "START_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
     "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.legacy.KafkaRedisDStreamAdvertisingStream ./spark-legacy-benchmarks/target/spark-legacy-benchmarks-0.1.0.jar "$CONF_FILE" &
     sleep 5
-  elif [ "STOP_LEGACY_SPARK_PROCESSING" = "$OPERATION" ];
+  elif [ "STOP_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
     stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"
   elif [ "START_SS_SPARK_PROCESSING" = "$OPERATION" ];
@@ -300,17 +300,17 @@ run() {
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
-  elif [ "SPARK_LEGACY_TEST" = "$OPERATION" ];
+  elif [ "SPARK_DSTREAM_TEST" = "$OPERATION" ];
   then
     run "START_ZK"
     run "START_REDIS"
     run "START_KAFKA"
     run "START_SPARK"
-    run "START_LEGACY_SPARK_PROCESSING"
+    run "START_DSTREAM_SPARK_PROCESSING"
     run "START_LOAD"
     sleep $TEST_TIME
     run "STOP_LOAD"
-    run "STOP_LEGACY_SPARK_PROCESSING"
+    run "STOP_DSTREAM_SPARK_PROCESSING"
     run "STOP_SPARK"
     run "STOP_KAFKA"
     run "STOP_REDIS"
@@ -333,7 +333,7 @@ run() {
   elif [ "STOP_ALL" = "$OPERATION" ];
   then
     run "STOP_LOAD"
-    run "STOP_LEGACY_SPARK_PROCESSING"
+    run "STOP_DSTREAM_SPARK_PROCESSING"
     run "STOP_SS_SPARK_PROCESSING"
     run "STOP_SPARK"
     run "STOP_FLINK_PROCESSING"
@@ -370,14 +370,14 @@ run() {
     echo "STOP_STORM_TOPOLOGY: kill the storm test topology"
     echo "START_FLINK_PROCESSING: run the flink test processing"
     echo "STOP_FLINK_PROCESSSING: kill the flink test processing"
-    echo "START_LEGACY_SPARK_PROCESSING: run the spark legacy dstream test processing"
-    echo "STOP_LEGACY_SPARK_PROCESSSING: kill the spark legacy dstream test processing"
+    echo "START_DSTREAM_SPARK_PROCESSING: run the spark legacy dstream test processing"
+    echo "STOP_DSTREAM_SPARK_PROCESSSING: kill the spark legacy dstream test processing"
     echo "START_SS_SPARK_PROCESSING: run the spark structured streaming test processing"
     echo "STOP_SS_SPARK_PROCESSING: kill spark structured streaming test processing"
     echo
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
-    echo "SPARK_LEGACY_TEST: run spark dstream legacy test (assumes SETUP is done)"
+    echo "SPARK_DSTREAM_TEST: run spark dstream legacy test (assumes SETUP is done)"
     echo "SPARK_SS_TEST: run spark structured streaming test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
     echo
