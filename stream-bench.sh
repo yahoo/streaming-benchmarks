@@ -244,7 +244,7 @@ run() {
     sleep 10
   elif [ "START_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner "$CONF_FILE" &
     sleep 5
   elif [ "STOP_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
