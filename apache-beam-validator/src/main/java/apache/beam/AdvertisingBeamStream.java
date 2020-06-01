@@ -1,10 +1,12 @@
 /**
- * Copyright 2015, Yahoo Inc.
+ * Copyright 2020, Verizon Media Inc.
  * Licensed under the terms of the Apache License 2.0. Please see LICENSE file in the project root for terms.
  */
 package apache.beam;
 
 import avro.shaded.com.google.common.collect.ImmutableMap;
+import org.apache.beam.runners.flink.FlinkRunner;
+import org.apache.beam.runners.spark.SparkRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
@@ -27,6 +29,8 @@ public class AdvertisingBeamStream {
     public static void main(final String[] args) throws Exception {
 
         PipelineOptions options = PipelineOptionsFactory.create();
+        //options.setRunner(SparkRunner.class);
+        //options.setRunner(FlinkRunner.class);
 
         // Create the Pipeline object with the options we defined above.
         Pipeline p = Pipeline.create(options);

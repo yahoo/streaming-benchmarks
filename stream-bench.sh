@@ -248,7 +248,14 @@ run() {
     sleep 5
   elif [ "STOP_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Process"
+    stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Spark Process"
+  elif [ "START_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
+  then
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "$CONF_FILE" &
+    sleep 5
+  elif [ "STOP_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
+  then
+    stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Flink Process"
   elif [ "START_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
     "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.legacy.KafkaRedisDStreamAdvertisingStream ./spark-legacy-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar "$CONF_FILE" &
@@ -307,7 +314,7 @@ run() {
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
-  elif [ "BEAM_TEST" = "$OPERATION" ];
+  elif [ "BEAM_SPARK_TEST" = "$OPERATION" ];
   then
     run "START_ZK"
     run "START_REDIS"
@@ -318,6 +325,21 @@ run() {
     sleep $TEST_TIME
     run "STOP_LOAD"
     run "STOP_BEAM_SPARK_PROCESSING"
+    run "STOP_SPARK"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
+  elif [ "BEAM_FLINK_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_SPARK"
+    run "START_BEAM_FLINK_PROCESSING"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_BEAM_FLINK_PROCESSING"
     run "STOP_SPARK"
     run "STOP_KAFKA"
     run "STOP_REDIS"
@@ -357,6 +379,8 @@ run() {
     run "STOP_LOAD"
     run "STOP_DSTREAM_SPARK_PROCESSING"
     run "STOP_SS_SPARK_PROCESSING"
+    run "STOP_BEAM_SPARK_PROCESSING"
+    run "STOP_BEAM_FLINK_PROCESSING"
     run "STOP_SPARK"
     run "STOP_FLINK_PROCESSING"
     run "STOP_FLINK"
@@ -396,11 +420,17 @@ run() {
     echo "STOP_DSTREAM_SPARK_PROCESSSING: kill the spark legacy dstream test processing"
     echo "START_SS_SPARK_PROCESSING: run the spark structured streaming test processing"
     echo "STOP_SS_SPARK_PROCESSING: kill spark structured streaming test processing"
+    echo "START_BEAM_SPARK_PROCESSING: run apache beam spark runner pipeline"
+    echo "STOP_BEAM_SPARK_PROCESSING: kill apache beam spark runner pipeline"
+    echo "START_BEAM_FLINK_PROCESSING: run apache beam flink runner pipeline"
+    echo "STOP_BEAM_FLINK_PROCESSING: kill apache beam flink runner pipeline"
     echo
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
     echo "SPARK_DSTREAM_TEST: run spark dstream legacy test (assumes SETUP is done)"
     echo "SPARK_SS_TEST: run spark structured streaming test (assumes SETUP is done)"
+    echo "BEAM_SPARK_TEST: run apache beam using spark runner test (assumes SETUP is done)"
+    echo "BEAM_FLINK_TEST: run apache beam using flink runner test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
     echo
     echo "HELP: print out this message"
