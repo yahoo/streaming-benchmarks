@@ -13,7 +13,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spark-legacy-benchmarks</artifactId>
+    <artifactId>spark-dstream-benchmarks</artifactId>
 
     <repositories>
         <repository>
