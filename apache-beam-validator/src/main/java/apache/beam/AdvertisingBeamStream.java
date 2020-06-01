@@ -5,18 +5,26 @@
 package apache.beam;
 
 import avro.shaded.com.google.common.collect.ImmutableMap;
+import benchmark.common.Utils;
 import org.apache.beam.runners.flink.FlinkRunner;
-import org.apache.beam.runners.spark.SparkRunner;
+import org.apache.beam.runners.spark.structuredstreaming.SparkStructuredStreamingRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.beam.sdk.io.kafka.KafkaIO;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -29,15 +37,35 @@ public class AdvertisingBeamStream {
     public static void main(final String[] args) throws Exception {
 
         PipelineOptions options = PipelineOptionsFactory.create();
-        //options.setRunner(SparkRunner.class);
-        //options.setRunner(FlinkRunner.class);
 
         // Create the Pipeline object with the options we defined above.
         Pipeline p = Pipeline.create(options);
+        Options opts = new Options();
+        opts.addOption("conf", true, "Path to the config file.");
+        opts.addOption("runner", true, "Runner");
+
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(opts, args);
+
+        String configPath = cmd.getOptionValue("conf");
+        String runner = cmd.getOptionValue("runner");
+
+        if (runner.equalsIgnoreCase("FlinkRunner")) {
+            options.setRunner(FlinkRunner.class);
+        } else {
+            options.setRunner(SparkStructuredStreamingRunner.class);
+        }
+
+        Map commonConfig = Utils.findAndReadConfigFile(configPath, true);
+
+        String kafkaBrokers = Utils.joinHosts((List<String>)commonConfig.get("kafka.brokers"),
+                Integer.toString((Integer)commonConfig.get("kafka.port")));
+        String kafkaTopic = (String)commonConfig.get("kafka.topic");
+
 
         p.apply(KafkaIO.<String, String>read()
-                .withBootstrapServers("localhost:9092")
-                .withTopic("ad-events")
+                .withBootstrapServers(kafkaBrokers)
+                .withTopic(kafkaTopic)
                 .withKeyDeserializer(StringDeserializer.class)
                 .withValueDeserializer(StringDeserializer.class)
 

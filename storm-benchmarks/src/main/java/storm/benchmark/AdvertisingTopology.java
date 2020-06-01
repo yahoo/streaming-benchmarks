@@ -176,21 +176,6 @@ public class AdvertisingTopology {
         }
     }
 
-    private static String joinHosts(List<String> hosts, String port) {
-        String joined = null;
-        for(String s : hosts) {
-            if(joined == null) {
-                joined = "";
-            }
-            else {
-                joined += ",";
-            }
-
-            joined += s + ":" + port;
-        }
-        return joined;
-    }
-
     private static KafkaSpoutConfig<String, String> getKafkaSpoutConfig(String bootstrapServers,
                                                                         String kafkaTopic) {
         return KafkaSpoutConfig.builder(bootstrapServers, kafkaTopic)
@@ -225,8 +210,8 @@ public class AdvertisingTopology {
         }
         Map commonConfig = Utils.findAndReadConfigFile(configPath, true);
 
-        String zkServerHosts = joinHosts((List<String>)commonConfig.get("zookeeper.servers"),
-                                         Integer.toString((Integer)commonConfig.get("zookeeper.port")));
+        String kafkaBrokers = Utils.joinHosts((List<String>)commonConfig.get("kafka.brokers"),
+                                         Integer.toString((Integer)commonConfig.get("kafka.port")));
         String redisServerHost = (String)commonConfig.get("redis.host");
         String kafkaTopic = (String)commonConfig.get("kafka.topic");
         int kafkaPartitions = ((Number)commonConfig.get("kafka.partitions")).intValue();
@@ -236,7 +221,7 @@ public class AdvertisingTopology {
         int parallel = Math.max(1, cores/7);
 
 
-        KafkaSpout kafkaSpout = new KafkaSpout(getKafkaSpoutConfig(zkServerHosts, kafkaTopic));
+        KafkaSpout kafkaSpout = new KafkaSpout(getKafkaSpoutConfig(kafkaBrokers, kafkaTopic));
 
         builder.setSpout("ads", kafkaSpout, kafkaPartitions);
         builder.setBolt("event_deserializer", new DeserializeBolt(), parallel).shuffleGrouping("ads");
