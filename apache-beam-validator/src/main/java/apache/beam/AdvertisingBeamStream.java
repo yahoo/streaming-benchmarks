@@ -50,7 +50,11 @@ public class AdvertisingBeamStream {
                 .apply("ExtractWords", ParDo.of(new DoFn<String, String>() {
                     @ProcessElement
                     public void processElement(ProcessContext c) {
-
+                        for (String word : c.element().split(",")) {
+                            if (!word.isEmpty()) {
+                                c.output(word);
+                            }
+                        }
                     }
                 }))
                 .apply(Count.<String>perElement())

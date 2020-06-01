@@ -242,13 +242,20 @@ run() {
   then
     "$STORM_DIR/bin/storm" kill -w 0 test-topo || true
     sleep 10
+  elif [ "START_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
+  then
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "$CONF_FILE" &
+    sleep 5
+  elif [ "STOP_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
+  then
+    stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Process"
   elif [ "START_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.legacy.KafkaRedisDStreamAdvertisingStream ./spark-legacy-benchmarks/target/spark-legacy-benchmarks-0.1.0.jar "$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.legacy.KafkaRedisDStreamAdvertisingStream ./spark-legacy-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar "$CONF_FILE" &
     sleep 5
   elif [ "STOP_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    stop_if_needed spark.benchmark.KafkaRedisAdvertisingStream "Spark Client Process"
+    stop_if_needed spark.benchmark.KafkaRedisDStreamAdvertisingStream "Spark Client Process"
   elif [ "START_SS_SPARK_PROCESSING" = "$OPERATION" ];
     then
       "$SPARK_DIR/bin/spark-submit" --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0-preview2 --master spark://localhost:7077 --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream ./spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar "$CONF_FILE" &
@@ -297,6 +304,21 @@ run() {
     run "STOP_LOAD"
     run "STOP_FLINK_PROCESSING"
     run "STOP_FLINK"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
+  elif [ "BEAM_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_SPARK"
+    run "START_BEAM_SPARK_PROCESSING"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_BEAM_SPARK_PROCESSING"
+    run "STOP_SPARK"
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
