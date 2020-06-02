@@ -180,8 +180,8 @@ public class AdvertisingTopology {
                                                                         String kafkaTopic) {
         return KafkaSpoutConfig.builder(bootstrapServers, kafkaTopic)
                 .setProp(ConsumerConfig.GROUP_ID_CONFIG, "storm-benchmark")
-                .setRecordTranslator((r) -> new Values(r.topic(), r.partition(), r.offset(), r.key(), r.value()),
-                        new Fields("topic", "partition", "offset", "key", "value"))
+                //.setRecordTranslator((r) -> new Values(r.topic(), r.partition(), r.offset(), r.key(), r.value()),
+                //        new Fields("topic", "partition", "offset", "key", "value"))
                 .setFirstPollOffsetStrategy(EARLIEST)
                 .build();
     }

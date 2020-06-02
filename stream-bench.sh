@@ -141,6 +141,9 @@ run() {
 
     $MVN clean install -Dbeam.version="$BEAM_VERSION" -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
 
+    # Remove corrupted signature for beam
+    zip -d ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar META-INF/*.RSA META-INF/*.DSA META-INF/*.SF
+
     #Fetch and build Redis
     REDIS_FILE="$REDIS_DIR.tar.gz"
     fetch_untar_file "$REDIS_FILE" "http://download.redis.io/releases/$REDIS_FILE"
@@ -244,21 +247,21 @@ run() {
     sleep 10
   elif [ "START_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkStructuredStreamingRunner --conf "$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "SparkStructuredStreamingRunner" "$CONF_FILE" &
     sleep 5
   elif [ "STOP_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
     stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Spark Process"
   elif [ "START_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --conf "$CONF_FILE" &
+    "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "FlinkRunner" $CONF_FILE &
     sleep 5
   elif [ "STOP_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
     stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Flink Process"
   elif [ "START_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.legacy.KafkaRedisDStreamAdvertisingStream ./spark-legacy-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar "$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.legacy.KafkaRedisDStreamAdvertisingStream ./spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar "$CONF_FILE" &
     sleep 5
   elif [ "STOP_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
@@ -334,13 +337,13 @@ run() {
     run "START_ZK"
     run "START_REDIS"
     run "START_KAFKA"
-    run "START_SPARK"
+    run "START_FLINK"
     run "START_BEAM_FLINK_PROCESSING"
     run "START_LOAD"
     sleep $TEST_TIME
     run "STOP_LOAD"
     run "STOP_BEAM_FLINK_PROCESSING"
-    run "STOP_SPARK"
+    run "STOP_FLINK"
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"

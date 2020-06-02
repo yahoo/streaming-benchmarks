@@ -7,17 +7,13 @@ package apache.beam;
 import avro.shaded.com.google.common.collect.ImmutableMap;
 import benchmark.common.Utils;
 import org.apache.beam.runners.flink.FlinkRunner;
-import org.apache.beam.runners.spark.structuredstreaming.SparkStructuredStreamingRunner;
+import org.apache.beam.runners.spark.SparkRunner;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.*;
 import org.apache.beam.sdk.values.KV;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Options;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +25,13 @@ import java.util.Map;
 
 /**
  * To Run:
+ * SparkRunner:
+ * "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream
+ * ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "SparkRunner" "$CONF_FILE"
+ *
+ * FlinkRunner:
+ * "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "FlinkRunner" "$CONF_FILE"
+ *
  */
 public class AdvertisingBeamStream {
 
@@ -36,27 +39,25 @@ public class AdvertisingBeamStream {
 
     public static void main(final String[] args) throws Exception {
 
+
+        if(args.length < 2) {
+            System.out.println("Missing runner and config path");
+            System.exit(1);
+        }
+
         PipelineOptions options = PipelineOptionsFactory.create();
+        if (args[0].equalsIgnoreCase("FlinkRunner")) {
+            options.setRunner(FlinkRunner.class);
+        } else {
+            // Structured streaming runner works with 2.4.5 spark but not with 3.x version
+            // Legacy DStream API works fine with 3.0
+            options.setRunner(SparkRunner.class);
+        }
 
         // Create the Pipeline object with the options we defined above.
         Pipeline p = Pipeline.create(options);
-        Options opts = new Options();
-        opts.addOption("conf", true, "Path to the config file.");
-        opts.addOption("runner", true, "Runner");
 
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(opts, args);
-
-        String configPath = cmd.getOptionValue("conf");
-        String runner = cmd.getOptionValue("runner");
-
-        if (runner.equalsIgnoreCase("FlinkRunner")) {
-            options.setRunner(FlinkRunner.class);
-        } else {
-            options.setRunner(SparkStructuredStreamingRunner.class);
-        }
-
-        Map commonConfig = Utils.findAndReadConfigFile(configPath, true);
+        Map commonConfig = Utils.findAndReadConfigFile(args[1], true);
 
         String kafkaBrokers = Utils.joinHosts((List<String>)commonConfig.get("kafka.brokers"),
                 Integer.toString((Integer)commonConfig.get("kafka.port")));
