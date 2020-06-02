@@ -180,8 +180,8 @@ public class AdvertisingTopology {
                                                                         String kafkaTopic) {
         return KafkaSpoutConfig.builder(bootstrapServers, kafkaTopic)
                 .setProp(ConsumerConfig.GROUP_ID_CONFIG, "storm-benchmark")
-                //.setRecordTranslator((r) -> new Values(r.topic(), r.partition(), r.offset(), r.key(), r.value()),
-                //        new Fields("topic", "partition", "offset", "key", "value"))
+                .setRecordTranslator((r) -> new Values(r.key(), r.value()),
+                        new Fields("key", "value"))
                 .setFirstPollOffsetStrategy(EARLIEST)
                 .build();
     }
@@ -212,6 +212,8 @@ public class AdvertisingTopology {
 
         String kafkaBrokers = Utils.joinHosts((List<String>)commonConfig.get("kafka.brokers"),
                                          Integer.toString((Integer)commonConfig.get("kafka.port")));
+
+        System.out.println("blah blah storm" + kafkaBrokers);
         String redisServerHost = (String)commonConfig.get("redis.host");
         String kafkaTopic = (String)commonConfig.get("kafka.topic");
         int kafkaPartitions = ((Number)commonConfig.get("kafka.partitions")).intValue();
