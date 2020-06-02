@@ -261,7 +261,7 @@ run() {
     stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Flink Process"
   elif [ "START_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.legacy.KafkaRedisDStreamAdvertisingStream ./spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar "$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class spark.benchmark.dstream.KafkaRedisDStreamAdvertisingStream ./spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar "$CONF_FILE" &
     sleep 5
   elif [ "STOP_DSTREAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
