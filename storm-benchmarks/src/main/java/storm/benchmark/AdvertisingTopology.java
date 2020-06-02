@@ -48,7 +48,9 @@ public class AdvertisingTopology {
         @Override
         public void execute(Tuple tuple) {
 
-            JSONObject obj = new JSONObject(tuple.getString(0));
+            // Tuple contains "topic", "partition", "offset", "key", and "value"
+            // We extract the value for our processing
+            JSONObject obj = new JSONObject(tuple.getString(4));
             _collector.emit(tuple, new Values(obj.getString("user_id"),
                                               obj.getString("page_id"),
                                               obj.getString("ad_id"),
@@ -180,8 +182,8 @@ public class AdvertisingTopology {
                                                                         String kafkaTopic) {
         return KafkaSpoutConfig.builder(bootstrapServers, kafkaTopic)
                 .setProp(ConsumerConfig.GROUP_ID_CONFIG, "storm-benchmark")
-                .setRecordTranslator((r) -> new Values(r.key(), r.value()),
-                        new Fields("key", "value"))
+                .setProp("key.deserializer", org.apache.kafka.common.serialization.StringDeserializer.class)
+                .setProp("value.deserializer", org.apache.kafka.common.serialization.StringDeserializer.class)
                 .setFirstPollOffsetStrategy(EARLIEST)
                 .build();
     }
@@ -213,7 +215,6 @@ public class AdvertisingTopology {
         String kafkaBrokers = Utils.joinHosts((List<String>)commonConfig.get("kafka.brokers"),
                                          Integer.toString((Integer)commonConfig.get("kafka.port")));
 
-        System.out.println("blah blah storm" + kafkaBrokers);
         String redisServerHost = (String)commonConfig.get("redis.host");
         String kafkaTopic = (String)commonConfig.get("kafka.topic");
         int kafkaPartitions = ((Number)commonConfig.get("kafka.partitions")).intValue();
