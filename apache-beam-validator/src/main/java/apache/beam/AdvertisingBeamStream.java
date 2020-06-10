@@ -91,7 +91,7 @@ public class AdvertisingBeamStream {
                         }
                     }
                 }))
-                .apply("Redis Join Event", ParDo.of(new DoFn<Map<String,String>, Map<String,List<String>>>() {
+                .apply("Redis Join Event", ParDo.of(new DoFn<Map<String,String>, List<String>>() {
                     transient RedisAdCampaignCache redisAdCampaignCache;
 
                     @StartBundle
@@ -103,18 +103,16 @@ public class AdvertisingBeamStream {
                     public void processElement(ProcessContext c) {
                         String ad_id = c.element().get("ad_id");
                         String campaign_id = this.redisAdCampaignCache.execute(ad_id);
-                        // TODO: May be a better way to pass these tuples
-                        List<String> ad_id_event_time_pair = new ArrayList<>();
-                        Map<String, List<String>> redis_join = new HashMap<>();
+                        List<String> tuples = new ArrayList<>();
                         if (campaign_id != null) {
-                            ad_id_event_time_pair.add(ad_id);
-                            ad_id_event_time_pair.add(c.element().get("event_time"));
-                            redis_join.put(campaign_id, ad_id_event_time_pair);
-                            c.output(redis_join);
+                            tuples.add(campaign_id);
+                            tuples.add(ad_id);
+                            tuples.add(c.element().get("event_time"));
+                            c.output(tuples);
                         }
                     }
                 }))
-                .apply("Campaign Proccessing Event", ParDo.of(new DoFn<Map<String,List<String>>, String>() {
+                .apply("Campaign Proccessing Event", ParDo.of(new DoFn<List<String>, String>() {
                     CampaignProcessorCommon campaignProcessorCommon;
 
                     @StartBundle
@@ -124,10 +122,8 @@ public class AdvertisingBeamStream {
                     }
                     @ProcessElement
                     public void processElement(ProcessContext c) {
-                        for (String campaign_id: c.element().keySet()) {
-                            this.campaignProcessorCommon.execute(campaign_id,
-                                    c.element().get(campaign_id).get(1));
-                        }
+                            this.campaignProcessorCommon.execute(c.element().get(0),
+                                    c.element().get(2));
                     }
                 }));
         p.run().waitUntilFinish();
