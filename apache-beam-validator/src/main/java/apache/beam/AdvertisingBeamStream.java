@@ -106,7 +106,6 @@ public class AdvertisingBeamStream {
                         // TODO: May be a better way to pass these tuples
                         List<String> ad_id_event_time_pair = new ArrayList<>();
                         Map<String, List<String>> redis_join = new HashMap<>();
-
                         if (campaign_id != null) {
                             ad_id_event_time_pair.add(ad_id);
                             ad_id_event_time_pair.add(c.element().get("event_time"));
