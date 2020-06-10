@@ -122,8 +122,7 @@ public class AdvertisingBeamStream {
                     }
                     @ProcessElement
                     public void processElement(ProcessContext c) {
-                            this.campaignProcessorCommon.execute(c.element().get(0),
-                                    c.element().get(2));
+                        this.campaignProcessorCommon.execute(c.element().get(0), c.element().get(2));
                     }
                 }));
         p.run().waitUntilFinish();
