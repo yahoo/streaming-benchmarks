@@ -217,6 +217,5 @@ object KafkaRedisDStreamAdvertisingStream {
       dressUp.hset(windowUUID, "time_updated", currentTime.toString)
       return window_seenCount.toString
     }
-
   }
 }

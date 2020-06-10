@@ -245,16 +245,23 @@ run() {
   then
     "$STORM_DIR/bin/storm" kill -w 0 test-topo || true
     sleep 10
+  elif [ "START_BEAM_SS_SPARK_PROCESSING" = "$OPERATION" ];
+  then
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkStructuredStreamingRunner --conf="$CONF_FILE" &
+    sleep 5
+  elif [ "STOP_BEAM_SS_SPARK_PROCESSING" = "$OPERATION" ];
+  then
+    stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Spark Process"
   elif [ "START_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "SparkStructuredStreamingRunner" "$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --conf="$CONF_FILE" &
     sleep 5
   elif [ "STOP_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
     stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Spark Process"
   elif [ "START_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
-    "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar "FlinkRunner" $CONF_FILE &
+    "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --conf=$CONF_FILE &
     sleep 5
   elif [ "STOP_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
@@ -314,6 +321,21 @@ run() {
     run "STOP_LOAD"
     run "STOP_FLINK_PROCESSING"
     run "STOP_FLINK"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
+  elif [ "BEAM_SPARK_SS_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_SPARK"
+    run "START_BEAM_SS_SPARK_PROCESSING"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_BEAM_SS_SPARK_PROCESSING"
+    run "STOP_SPARK"
     run "STOP_KAFKA"
     run "STOP_REDIS"
     run "STOP_ZK"
@@ -399,7 +421,7 @@ run() {
       echo
     fi
     echo "Supported Operations:"
-    echo "SETUP: download and setup dependencies for running a single node test"
+    echo "SETUP: download and setup dependencies for running a single node test. For BEAM_SPARK_SS_TEST export SPARK_VERSION=2.4.5. For BEAM_FLINK_TEST export FLINK_VERSION=1.9.0"
     echo "START_ZK: run a single node ZooKeeper instance on local host in the background"
     echo "STOP_ZK: kill the ZooKeeper instance"
     echo "START_REDIS: run a redis instance in the background"
@@ -425,6 +447,8 @@ run() {
     echo "STOP_SS_SPARK_PROCESSING: kill spark structured streaming test processing"
     echo "START_BEAM_SPARK_PROCESSING: run apache beam spark runner pipeline"
     echo "STOP_BEAM_SPARK_PROCESSING: kill apache beam spark runner pipeline"
+    echo "START_BEAM_SS_SPARK_PROCESSING: run apache beam spark structured streaming runner pipeline"
+    echo "STOP_BEAM_SS_SPARK_PROCESSING: kill apache beam spark structured streaming runner pipeline"
     echo "START_BEAM_FLINK_PROCESSING: run apache beam flink runner pipeline"
     echo "STOP_BEAM_FLINK_PROCESSING: kill apache beam flink runner pipeline"
     echo
@@ -433,6 +457,7 @@ run() {
     echo "SPARK_DSTREAM_TEST: run spark dstream legacy test (assumes SETUP is done)"
     echo "SPARK_SS_TEST: run spark structured streaming test (assumes SETUP is done)"
     echo "BEAM_SPARK_TEST: run apache beam using spark runner test (assumes SETUP is done)"
+    echo "BEAM_SPARK_SS_TEST: run apache beam using spark structured streaming runner test (assumes SETUP is done)"
     echo "BEAM_FLINK_TEST: run apache beam using flink runner test (assumes SETUP is done)"
     echo "STOP_ALL: stop everything"
     echo
