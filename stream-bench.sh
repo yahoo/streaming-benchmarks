@@ -22,11 +22,12 @@ FLINK_VERSION=${FLINK_VERSION:-"1.10.0"}
 SPARK_VERSION=${SPARK_VERSION:-"3.0.0-preview2"}
 HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 
-STORM_DIR=${STORM_DIR-:"apache-storm-$STORM_VERSION"}
-REDIS_DIR=${REDIS_DIR-:"redis-$REDIS_VERSION"}
-KAFKA_DIR=${KAFKA_DIR-:"kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"}
-FLINK_DIR=${FLINK_DIR-:"flink-$FLINK_VERSION"}
-SPARK_DIR=${SPARK_DIR-:"spark-$SPARK_VERSION-bin-hadoop2.7"}
+STORM_DIR=${STORM_DIR:-"apache-storm-$STORM_VERSION"}
+REDIS_DIR=${REDIS_DIR:-"redis-$REDIS_VERSION"}
+KAFKA_DIR=${KAFKA_DIR:-"kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"}
+FLINK_DIR=${FLINK_DIR:-"flink-$FLINK_VERSION"}
+SPARK_DIR=${SPARK_DIR:-"spark-$SPARK_VERSION-bin-hadoop2.7"}
+ROOT=${ROOT:-"."}
 
 #Get one of the closet apache mirrors
 APACHE_MIRROR=$"https://archive.apache.org/dist"
@@ -186,7 +187,7 @@ run() {
   elif [ "START_REDIS" = "$OPERATION" ];
   then
     start_if_needed redis-server Redis 1 "$REDIS_DIR/src/redis-server"
-    cd data
+    cd $ROOT/data
     $LEIN run -n --configPath ../conf/benchmarkConf.yaml
     cd ..
   elif [ "STOP_REDIS" = "$OPERATION" ];
@@ -231,13 +232,13 @@ run() {
     sleep 3
   elif [ "START_LOAD" = "$OPERATION" ];
   then
-    cd data
+    cd $ROOT/data
     start_if_needed leiningen.core.main "Load Generation" 1 $LEIN run -r -t $LOAD --configPath ../$CONF_FILE
     cd ..
   elif [ "STOP_LOAD" = "$OPERATION" ];
   then
     stop_if_needed leiningen.core.main "Load Generation"
-    cd data
+    cd $ROOT/data
     $LEIN run -g --configPath ../$CONF_FILE || true
     cd ..
   elif [ "START_STORM_TOPOLOGY" = "$OPERATION" ];
