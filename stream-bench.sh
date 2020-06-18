@@ -22,11 +22,11 @@ FLINK_VERSION=${FLINK_VERSION:-"1.10.0"}
 SPARK_VERSION=${SPARK_VERSION:-"3.0.0-preview2"}
 HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 
-STORM_DIR="apache-storm-$STORM_VERSION"
-REDIS_DIR="redis-$REDIS_VERSION"
-KAFKA_DIR="kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"
-FLINK_DIR="flink-$FLINK_VERSION"
-SPARK_DIR="spark-$SPARK_VERSION-bin-hadoop2.7"
+STORM_DIR=${STORM_DIR-:"apache-storm-$STORM_VERSION"}
+REDIS_DIR=${REDIS_DIR-:"redis-$REDIS_VERSION"}
+KAFKA_DIR=${KAFKA_DIR-:"kafka_$SCALA_BIN_VERSION-$KAFKA_VERSION"}
+FLINK_DIR=${FLINK_DIR-:"flink-$FLINK_VERSION"}
+SPARK_DIR=${SPARK_DIR-:"spark-$SPARK_VERSION-bin-hadoop2.7"}
 
 #Get one of the closet apache mirrors
 APACHE_MIRROR=$"https://archive.apache.org/dist"
@@ -180,6 +180,9 @@ run() {
   then
     stop_if_needed dev_zookeeper ZooKeeper
     rm -rf /tmp/dev-storm-zookeeper
+    # For remote quorum setup
+    stop_if_needed org\.apache\.zookeeper\.server\.quorum\.QuorumPeerMain Zookeeper
+    rm -rf /tmp/zookeeper
   elif [ "START_REDIS" = "$OPERATION" ];
   then
     start_if_needed redis-server Redis 1 "$REDIS_DIR/src/redis-server"
