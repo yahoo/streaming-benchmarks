@@ -19,12 +19,12 @@ redis.host: "10.227.218.204"
 kafka.topic: "ad-events"
 kafka.partitions: 5
 
-process.hosts: 2
-process.cores: 7
+process.hosts: 1
+process.cores: 72
 
 #STORM Specific
-storm.workers: 10
-storm.ackers: 2
+storm.workers: 1
+storm.ackers: 0
 
 #Spark Specific
 spark.batch.time: 2000

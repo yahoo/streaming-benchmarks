@@ -46,7 +46,7 @@ jobmanager.heap.size: 1024m
 #
 # Note this accounts for all memory usage within the TaskManager process, including JVM metaspace and other overhead.
 
-taskmanager.memory.process.size: 1568m
+taskmanager.memory.process.size: 384000m
 
 # To exclude JVM metaspace and overhead, please, use total Flink memory size instead of 'taskmanager.memory.process.size'.
 # It is not recommended to set both 'taskmanager.memory.process.size' and Flink memory.
@@ -55,14 +55,14 @@ taskmanager.memory.process.size: 1568m
 
 # The number of task slots that each TaskManager offers. Each slot runs one parallel pipeline.
 
-taskmanager.numberOfTaskSlots: 1
+taskmanager.numberOfTaskSlots: 72
 
 # The parallelism used for programs that did not specify and other parallelism.
 
 parallelism.default: 1
 
 # The default file system scheme and authority.
-# 
+#
 # By default file paths without scheme are interpreted relative to the local
 # root file system 'file:///'. Use this to override the default and interpret
 # relative paths relative to a different file system,
@@ -81,9 +81,9 @@ parallelism.default: 1
 # The path where metadata for master recovery is persisted. While ZooKeeper stores
 # the small ground truth for checkpoint and leader election, this location stores
 # the larger objects, like persisted dataflow graphs.
-# 
+#
 # Must be a durable file system that is accessible from all nodes
-# (like HDFS, S3, Ceph, nfs, ...) 
+# (like HDFS, S3, Ceph, nfs, ...)
 #
 # high-availability.storageDir: hdfs:///flink/ha/
 
@@ -122,7 +122,7 @@ parallelism.default: 1
 # state.savepoints.dir: hdfs://namenode-host:port/flink-checkpoints
 
 # Flag to enable/disable incremental checkpoints for backends that
-# support incremental checkpoints (like the RocksDB state backend). 
+# support incremental checkpoints (like the RocksDB state backend).
 #
 # state.backend.incremental: false
 
@@ -188,10 +188,10 @@ jobmanager.execution.failover-strategy: region
 #
 # classloader.resolve-order: child-first
 
-# The amount of memory going to the network stack. These numbers usually need 
+# The amount of memory going to the network stack. These numbers usually need
 # no tuning. Adjusting them may be necessary in case of an "Insufficient number
 # of network buffers" error. The default min is 64MB, the default max is 1GB.
-# 
+#
 # taskmanager.memory.network.fraction: 0.1
 # taskmanager.memory.network.min: 64mb
 # taskmanager.memory.network.max: 1gb
