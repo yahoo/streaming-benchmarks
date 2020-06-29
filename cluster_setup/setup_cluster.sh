@@ -178,7 +178,7 @@ stop_spark_cluster() {
 }
 
 start_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --class spark.benchmark.dstream.KafkaRedisDStreamAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class spark.benchmark.dstream.KafkaRedisDStreamAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
 }
 
 stop_spark_topology() {
@@ -186,7 +186,7 @@ stop_spark_topology() {
 }
 
 start_ss_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --class spark.benchmark.dstream.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class spark.benchmark.dstream.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
 }
 
 stop_ss_spark_topology() {
@@ -196,7 +196,7 @@ stop_ss_spark_topology() {
 start_beam_spark_topology() {
   SPARK_VERSION=2.4.6
   SPARK_DIR="$ROOT/spark-$SPARK_VERSION-bin-hadoop2.7"
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --batchIntervalMillis=2000 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --batchIntervalMillis=2000 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml  > /dev/null 2>&1 &"
   echo "Starting beam flink topology"
 }
 
