@@ -48,7 +48,7 @@ object KafkaRedisDStreamAdvertisingStream {
       case s: String => s
       case other => throw new ClassCastException(other + " not a String")
     }
-    
+
     // Create context with 2 second batch interval
     val sparkConf = new SparkConf().setAppName("KafkaRedisAdvertisingStream")
     val ssc = new StreamingContext(sparkConf, Milliseconds(batchSize))
@@ -64,7 +64,8 @@ object KafkaRedisDStreamAdvertisingStream {
 
     // Create direct kafka stream with brokers and topics
     val topicsSet = Set(topic)
-    val brokers = joinHosts(kafkaHosts, kafkaPort)
+    //val brokers = joinHosts(kafkaHosts, kafkaPort)
+    val brokers = "10.227.218.254:9092,10.227.218.253:9092,10.227.218.252:9092,10.227.218.251:9092,10.227.218.250:9092"
     val kafkaParams = Map[String, Object](
       "bootstrap.servers" -> brokers,
       "group.id" -> "dstream-benchmark",

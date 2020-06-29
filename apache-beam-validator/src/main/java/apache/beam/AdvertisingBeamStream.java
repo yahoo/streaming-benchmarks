@@ -38,8 +38,8 @@ import java.util.*;
 public class AdvertisingBeamStream {
 
     public interface AdvertisingBeamStreamOptions extends PipelineOptions {
-        String getConf();
-        void setConf(String value);
+        String getBeamConf();
+        void setBeamConf(String value);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AdvertisingBeamStream.class);
@@ -51,7 +51,7 @@ public class AdvertisingBeamStream {
 
         Pipeline p = Pipeline.create(options);
 
-        Map commonConfig = Utils.findAndReadConfigFile(options.getConf(), true);
+        Map commonConfig = Utils.findAndReadConfigFile(options.getBeamConf(), true);
 
         String kafkaBrokers = Utils.joinHosts((List<String>)commonConfig.get("kafka.brokers"),
                 Integer.toString((Integer)commonConfig.get("kafka.port")));

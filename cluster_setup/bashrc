@@ -1,0 +1,3 @@
+export JAVA_HOME=/home/y/share/yjava_jdk/java
+export SPARK_HOME=~/streaming-benchmarks/spark-2.4.6-bin-hadoop2.7/
+export SPARK_CONF_DIR=~/streaming-benchmarks/spark-2.4.6-bin-hadoop2.7/conf/

@@ -1,0 +1,31 @@
+# Copyright 2015, Yahoo Inc.
+# Licensed under the terms of the Apache License 2.0. Please see LICENSE file in the project root for terms.
+
+kafka.brokers:
+    - "10.227.218.254"
+    - "10.227.218.253"
+    - "10.227.218.252"
+    - "10.227.218.251"
+    - "10.227.218.250"
+
+zookeeper.servers:
+    - "10.227.218.254"
+    - "10.227.218.253"
+    - "10.227.218.252"
+
+kafka.port: 9092
+zookeeper.port: 2181
+redis.host: "10.227.218.204"
+kafka.topic: "ad-events"
+kafka.partitions: 5
+
+process.hosts: 2
+process.cores: 7
+
+#STORM Specific
+storm.workers: 10
+storm.ackers: 2
+
+#Spark Specific
+spark.batch.time: 2000
+spark.continoustime: 1000

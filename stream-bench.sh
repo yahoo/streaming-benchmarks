@@ -19,7 +19,7 @@ SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.12"}
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"2.1.0"}
 FLINK_VERSION=${FLINK_VERSION:-"1.10.0"}
-SPARK_VERSION=${SPARK_VERSION:-"3.0.0-preview2"}
+SPARK_VERSION=${SPARK_VERSION:-"3.0.0"}
 HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 
 STORM_DIR=${STORM_DIR:-"apache-storm-$STORM_VERSION"}
@@ -258,14 +258,14 @@ run() {
     stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Spark Process"
   elif [ "START_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
-    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --conf="$CONF_FILE" &
+    "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --beamConf="$CONF_FILE" &
     sleep 5
   elif [ "STOP_BEAM_SPARK_PROCESSING" = "$OPERATION" ];
   then
     stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Spark Process"
   elif [ "START_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
-    "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --conf=$CONF_FILE &
+    "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --beamConf=$CONF_FILE &
     sleep 5
   elif [ "STOP_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
