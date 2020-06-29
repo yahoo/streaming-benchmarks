@@ -8,6 +8,7 @@ import avro.shaded.com.google.common.collect.ImmutableMap;
 import benchmark.common.Utils;
 import benchmark.common.advertising.CampaignProcessorCommon;
 import benchmark.common.advertising.RedisAdCampaignCache;
+import org.apache.beam.runners.flink.FlinkPipelineOptions;
 import org.apache.beam.runners.flink.FlinkRunner;
 import org.apache.beam.runners.spark.SparkRunner;
 import org.apache.beam.sdk.Pipeline;
@@ -25,19 +26,21 @@ import java.util.*;
  * To Run:
  * SparkRunner:
  * "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream
- * ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner "$CONF_FILE"
+ * ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --beamConf="$CONF_FILE"
  *
  * SparkStructuredStreaming:
  * "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream
- * ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkStructuredStreamingRunner "$CONF_FILE"
+ * ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkStructuredStreamingRunner --beamConf="$CONF_FILE"
  *
  * FlinkRunner:
  * "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream
- * ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner "$CONF_FILE"
+ * ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --beamConf="$CONF_FILE"
  */
 public class AdvertisingBeamStream {
 
-    public interface AdvertisingBeamStreamOptions extends PipelineOptions {
+    // For Spark Runner except for --beamConf Flink pipeline options should not be
+    // important
+    public interface AdvertisingBeamStreamOptions extends FlinkPipelineOptions {
         String getBeamConf();
         void setBeamConf(String value);
     }

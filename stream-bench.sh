@@ -265,7 +265,7 @@ run() {
     stop_if_needed apache.beam.AdvertisingBeamStream "Apache Beam Spark Process"
   elif [ "START_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
-    "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --beamConf=$CONF_FILE &
+    "$FLINK_DIR/bin/flink" run -c apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --streaming --beamConf=$CONF_FILE &
     sleep 5
   elif [ "STOP_BEAM_FLINK_PROCESSING" = "$OPERATION" ];
   then
