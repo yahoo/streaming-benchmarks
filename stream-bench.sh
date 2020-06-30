@@ -14,7 +14,7 @@ MVN_REPO=${REPO:-"https://repo.maven.apache.org/maven2"}
 
 BEAM_VERSION=${BEAM_VERSION:-"2.20.0"}
 KAFKA_VERSION=${KAFKA_VERSION:-"2.4.1"}
-REDIS_VERSION=${REDIS_VERSION:-"6.0.1"}
+REDIS_VERSION=${REDIS_VERSION:-"6.0.5"}
 SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.12"}
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"2.1.0"}
@@ -146,13 +146,13 @@ run() {
     # Remove corrupted signature for beam
     zip -d ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar META-INF/*.RSA META-INF/*.DSA META-INF/*.SF
 
-    #Fetch and build Redis
-    REDIS_FILE="$REDIS_DIR.tar.gz"
-    fetch_untar_file "$REDIS_FILE" "http://download.redis.io/releases/$REDIS_FILE"
+    #Fetch and build Redis: mirror broken, for cluster test not required
+    #REDIS_FILE="$REDIS_DIR.tar.gz"
+    #fetch_untar_file "$REDIS_FILE" "http://download.redis.io/releases/$REDIS_FILE"
 
-    cd $REDIS_DIR
-    $MAKE
-    cd ..
+    #cd $REDIS_DIR
+    #$MAKE
+    #cd ..
 
     #Fetch Kafka
     KAFKA_FILE="$KAFKA_DIR.tgz"
