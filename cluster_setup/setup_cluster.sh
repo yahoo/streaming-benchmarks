@@ -6,7 +6,7 @@ REDIS_VERSION=${REDIS_VERSION:-"6.0.1"}
 SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.12"}
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"2.1.0"}
-FLINK_VERSION=${FLINK_VERSION:-"1.10.0"}
+FLINK_VERSION=${FLINK_VERSION:-"1.10.1"}
 SPARK_VERSION=${SPARK_VERSION:-"3.0.0"}
 HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 YJAVA_HOME=${YJAVA_HOME:-"/home/y/share/yjava_jdk/java"}
@@ -281,13 +281,13 @@ stop_load() {
   PRODS=`expr $PRODUCERS - 1`
   for i in $(seq 0 4);
   do
-    echo "Stopping producer on $i"
+    echo "Stopping producer $i on stbl1230n03.blue.ygrid.yahoo.com"
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n03.blue.ygrid.yahoo.com "ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java sh $ROOT/stream-bench.sh STOP_LOAD"
   done
   for i in $(seq 5 9);
   do
-    echo "Stopping producer on $i"
-    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n03.blue.ygrid.yahoo.com "ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java sh $ROOT/stream-bench.sh STOP_LOAD"
+    echo "Stopping producer $i stbl1230n04.blue.ygrid.yahoo.com"
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n04.blue.ygrid.yahoo.com "ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java sh $ROOT/stream-bench.sh STOP_LOAD"
   done
   ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n03.blue.ygrid.yahoo.com "cd $ROOT/data && ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java nohup lein run -g --configPath $ROOT/conf/localConf.yaml > /dev/null 2>&1 &"
 }
@@ -295,7 +295,7 @@ stop_load() {
 init_setup() {
   echo "Commencing initial setup"
   rm -rf streaming-benchmarks*
-  git clone git@git.ouroath.com:schintap/streaming-benchmarks.git -b bench_journey
+  git clone git@git.ouroath.com:schintap/streaming-benchmarks.git -b bench_journey_cluster_setup
   cd streaming-benchmarks
   sh stream-bench.sh SETUP
   cd ..
@@ -383,11 +383,11 @@ run() {
     init_setup
     setup_configs
     setup_lein
-    #setup_zookeeper_quorum
-    #setup_kafka_instances
-    #start_redis
-    #start_zookeeper_quorum
-    #start_kafka_instances
+    setup_zookeeper_quorum
+    setup_kafka_instances
+    start_redis
+    start_zookeeper_quorum
+    start_kafka_instances
   elif [[ "STOP_LOAD" = "$OP" ]];
   then
     echo "Stopping Load"
@@ -465,10 +465,10 @@ run() {
    stop_flink_cluster
   elif [[ "STOP_ALL" = "$OP" ]];
   then
-    stop_load
-    #stop_kafka_instances
-    #stop_zookeeper_quorum
-    #stop_redis
+    #stop_load
+    stop_kafka_instances
+    stop_zookeeper_quorum
+    stop_redis
   else
     echo "Storm -> sh setup_cluster.sh RUN_STORM_SUITE"
     echo "Spark -> sh setup_cluster.sh RUN_STORM_SUITE"
