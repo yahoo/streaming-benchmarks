@@ -311,10 +311,11 @@ init_setup() {
   for i in {0..9};
   do
     scp streaming-benchmarks.zip stbl1230n0$i.blue.ygrid.yahoo.com:~
-    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup rm -rf $ROOT > /dev/null 2>&1 &'
-    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup unzip -o streaming-benchmarks.zip > /dev/null 2>&1 &'
-    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup yinst i yjava_jdk-8.0_8u252b09.5462251 > /dev/null 2>&1 &'
-    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup yinst i yjava_maven > /dev/null 2>&1 &'
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup rm -rf $ROOT > /dev/null 2>&1 &"
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup unzip -o ~/streaming-benchmarks.zip > /dev/null 2>&1 &"
+    # Already installed commenting it out
+    #ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup yinst i yjava_jdk-8.0_8u252b09.5462251 > /dev/null 2>&1 &'
+    #ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup yinst i yjava_maven > /dev/null 2>&1 &'
   done
   echo "Initial setup complete"
 }
