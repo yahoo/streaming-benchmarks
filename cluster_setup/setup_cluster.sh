@@ -520,11 +520,17 @@ run() {
     stop_zookeeper_quorum
     stop_redis
   else
+    echo "Note: You can run this from your mac or admin host stbl1230n00.blue.ygrid.yahoo.com"
     echo "Storm -> sh setup_cluster.sh RUN_STORM_SUITE"
-    echo "Spark -> sh setup_cluster.sh RUN_STORM_SUITE"
+    echo "Spark -> sh setup_cluster.sh RUN_SPARK_SUITE"
+    echo "SS Spark -> sh setup_cluster.sh RUN_SS_SPARK_SUITE"
     echo "Flink -> sh setup_cluster.sh RUN_STORM_SUITE"
     echo "Beam Flink -> sh setup_cluster.sh RUN_FLINK_BEAM_SUITE"
     echo "Beam Spark -> sh setup_cluster.sh RUN_SPARK_BEAM_SUITE"
+    echo "Dryrun to test setup, this runs all frameworks at 50000 events/s -> sh setup_cluster.sh DRYRUN"
+    echo "Update configs and set up the cluster with new changes -> sh setup_cluster.sh SETUP_CONFIGS"
+    echo "Stopping producers -> sh setup_cluster.sh STOP_LOAD"
+    echo "Stopping kafka, quorum and other procs -> sh setup_cluster.sh STOP_ALL"
   fi
 }
 
