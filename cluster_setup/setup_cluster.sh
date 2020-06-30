@@ -165,8 +165,11 @@ start_spark_cluster() {
     SPARK_DIR="$ROOT/spark-$SPARK_VERSION-bin-hadoop2.7"
   fi
   printf "export JAVA_HOME=$JAVA_HOME\nexport SPARK_HOME=$SPARK_DIR\nexport SPARK_CONF_DIR=$SPARK_DIR/conf" > ./bashrc
-  scp ./bashrc stbl1230n0$i.blue.ygrid.yahoo.com:~
-  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "mv bashrc ~/.bashrc"
+  for i in {0..9};
+  do
+    scp ./bashrc stbl1230n0$i.blue.ygrid.yahoo.com:~
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "mv bashrc ~/.bashrc"
+  done
   ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME SPARK_HOME=$SPARK_DIR SPARK_CONF_DIR=$SPARK_HOME/conf sh $SPARK_DIR/sbin/start-master.sh -h localhost -p 7077 > /dev/null 2>&1 &"
   sleep 30
   ssh -o StrictHostKeyChecking=no `whoami`@stbl1230n00.blue.ygrid.yahoo.com "JAVA_HOME=$YJAVA_HOME SPARK_HOME=$SPARK_DIR SPARK_CONF_DIR=$SPARK_HOME/conf sh $SPARK_DIR/sbin/start-slave.sh spark://localhost:7077 > /dev/null 2>&1 &"
@@ -196,7 +199,7 @@ stop_ss_spark_topology() {
 start_beam_spark_topology() {
   SPARK_VERSION=2.4.6
   SPARK_DIR="$ROOT/spark-$SPARK_VERSION-bin-hadoop2.7"
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --batchIntervalMillis=2000 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --batchIntervalMillis=3000 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml  > /dev/null 2>&1 &"
   echo "Starting beam flink topology"
 }
 
@@ -207,7 +210,7 @@ stop_beam_spark_topology() {
 start_beam_flink_topology() {
   FLINK_VERSION=1.9.0
   FLINK_DIR="$ROOT/flink-$FLINK_VERSION"
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST  "$FLINK_DIR/bin/flink run -c apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --parallelism=16 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml --streaming > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST  "$FLINK_DIR/bin/flink run -c apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --parallelism=72 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml --streaming > /dev/null 2>&1 &"
 }
 
 stop_beam_flink_topology() {
@@ -250,6 +253,10 @@ start_load() {
   then
     stop_spark_topology
     start_spark_topology
+  elif [[ "SS_SPARK" = "$2" ]];
+  then
+    start_ss_spark_topology
+    stop_ss_spark_topology
   elif [[ "BEAM_FLINK" = "$2" ]];
   then
     stop_beam_flink_topology
@@ -267,12 +274,12 @@ start_load() {
   PRODS=`expr $PRODUCERS - 1`
   for i in $(seq 0 4);
   do
-    echo "Starting producer on $i"
+    echo "Starting producer $i on stbl1230n03.blue.ygrid.yahoo.com"
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n03.blue.ygrid.yahoo.com "LOAD=$LOAD ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java nohup sh $ROOT/stream-bench.sh START_LOAD > /dev/null 2>&1 &"
   done
   for i in $(seq 5 9);
   do
-    echo "Starting producer on $i"
+    echo "Starting producer $i on stbl1230n04.blue.ygrid.yahoo.com"
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n04.blue.ygrid.yahoo.com "LOAD=$LOAD ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java nohup sh $ROOT/stream-bench.sh START_LOAD > /dev/null 2>&1 &"
   done
 }
@@ -348,6 +355,11 @@ stop_and_clean() {
     sleep 120
     echo "Stopping Spark topology and clean up"
     stop_spark_topology
+  elif [[ "SS_SPARK" = "$2" ]];
+  then
+    sleep 120
+    echo "Stopping SS Spark topology and clean up"
+    stop_ss_spark_topology
   elif [[ "BEAM_FLINK" = "$2" ]];
   then
     sleep 120
@@ -365,8 +377,8 @@ stop_and_clean() {
   sleep 900
 
   # move results for graphs seen/updated to results/s<framework>/load/seen,updated
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mv $ROOT/data/seen.txt ~/results/$2/$1/  > /dev/null 2>&1 &"
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mv $ROOT/data/updated.txt ~/results/$2/$1/ > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n03.blue.ygrid.yahoo.com "nohup mv $ROOT/data/seen.txt ~/results/$2/$1/  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n03.blue.ygrid.yahoo.com "nohup mv $ROOT/data/updated.txt ~/results/$2/$1/ > /dev/null 2>&1 &"
 }
 
 run_streaming_job() {
@@ -395,9 +407,30 @@ run() {
   elif [[ "SETUP_CONFIGS" = "$OP" ]];
   then
     setup_configs
+  elif [[ "DRYRUN" = "$OP" ]];
+  then
+    start_storm_cluster
+    run_streaming_job 50000 "STORM"
+    stop_storm_cluster
+    start_flink_cluster
+    run_streaming_job 50000 "FLINK"
+    stop_flink_cluster
+    start_flink_cluster
+    run_streaming_job 50000 "BEAM_FLINK"
+    stop_flink_cluster
+    start_spark_cluster
+    run_streaming_job 50000 "SPARK"
+    stop_spark_cluster
+    start_spark_cluster
+    run_streaming_job 50000 "SS_SPARK"
+    stop_spark_cluster
+    start_spark_cluster
+    run_streaming_job 50000 "BEAM_SPARK"
+    stop_spark_cluster
   elif [[ "RUN_STORM_SUITE" = "$OP" ]];
   then
     echo "Running storm benchmark suite..."
+    OP="STORM"
     start_storm_cluster
     run_streaming_job 50000 $OP
     run_streaming_job 70000 $OP
@@ -412,6 +445,7 @@ run() {
   elif [[ "RUN_FLINK_SUITE" = "$OP" ]];
   then
     echo "Running Flink benchmark suite..."
+    OP="FLINK"
     start_flink_cluster
     run_streaming_job 50000 $OP
     run_streaming_job 70000 $OP
@@ -425,6 +459,21 @@ run() {
   elif [[ "RUN_SPARK_SUITE" = "$OP" ]];
   then
     echo "Running Spark benchmark suite..."
+    OP="SPARK"
+    start_spark_cluster
+    run_streaming_job 50000 $OP
+    run_streaming_job 70000 $OP
+    run_streaming_job 90000 $OP
+    run_streaming_job 110000 $OP
+    run_streaming_job 130000 $OP
+    run_streaming_job 135000 $OP
+    run_streaming_job 150000 $OP
+    run_streaming_job 170000 $OP
+    stop_spark_cluster
+  elif [[ "RUN_SS_SPARK_SUITE" = "$OP" ]];
+  then
+    echo "Running Spark benchmark suite..."
+    OP="SS_SPARK"
     start_spark_cluster
     run_streaming_job 50000 $OP
     run_streaming_job 70000 $OP
@@ -439,6 +488,7 @@ run() {
   then
     echo "Running Spark benchmark suite..."
     export SPARK_VERSION=2.4.6
+    OP="BEAM_SPARK"
     start_spark_cluster BEAM
     run_streaming_job 50000 $OP
     run_streaming_job 70000 $OP
@@ -453,6 +503,7 @@ run() {
   then
    echo "Running Beam Flink benchmark suite..."
    export FLINK_VERSION=1.9.0
+   OP="BEAM_FLINK"
    start_flink_cluster
    run_streaming_job 50000 $OP
    run_streaming_job 70000 $OP
@@ -465,8 +516,7 @@ run() {
    stop_flink_cluster
   elif [[ "STOP_ALL" = "$OP" ]];
   then
-    #stop_load
-    stop_kafka_instances
+    stop_kafka_instancess
     stop_zookeeper_quorum
     stop_redis
   else
