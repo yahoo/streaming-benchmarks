@@ -140,6 +140,7 @@ run() {
 	echo 'spark.batch.time: 2000' >> $CONF_FILE
 	echo 'spark.continuous.time: 1000' >> $CONF_FILE
 
+    echo "$MVN clean install -Dbeam.version="$BEAM_VERSION" -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION""
     $MVN clean install -Dbeam.version="$BEAM_VERSION" -Dspark.version="$SPARK_VERSION" -Dkafka.version="$KAFKA_VERSION" -Dflink.version="$FLINK_VERSION" -Dstorm.version="$STORM_VERSION" -Dscala.binary.version="$SCALA_BIN_VERSION" -Dscala.version="$SCALA_BIN_VERSION.$SCALA_SUB_VERSION"
 
     # Remove corrupted signature for beam
