@@ -301,12 +301,13 @@ stop_load() {
 
 init_setup() {
   echo "Commencing initial setup"
-  rm -rf streaming-benchmarks*
-  git clone git@git.ouroath.com:schintap/streaming-benchmarks.git -b bench_journey_cluster_setup
-  cd streaming-benchmarks
-  sh stream-bench.sh SETUP
-  cd ..
-  zip -r  streaming-benchmarks.zip streaming-benchmarks
+  #This wont work with vpn on as packages won't be allowed to be fetched and untared
+  #rm -rf streaming-benchmarks*
+  #git clone git@git.ouroath.com:schintap/streaming-benchmarks.git -b bench_journey_cluster_setup
+  #cd streaming-benchmarks
+  #sh stream-bench.sh SETUP
+  #cd ..
+  #zip -r  streaming-benchmarks.zip streaming-benchmarks
   for i in {0..9};
   do
     scp streaming-benchmarks.zip stbl1230n0$i.blue.ygrid.yahoo.com:~
