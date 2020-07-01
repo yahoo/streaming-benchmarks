@@ -108,7 +108,7 @@ start_kafka_instances() {
 stop_kafka_instances() {
   for i in {5..9};
   do
-    ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "KAFKA_DIR=$KAFKA_DIR nohup sh $ROOT/stream-bench.sh STOP_KAFKA > /dev/null 2>&1 &"
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "KAFKA_DIR=$KAFKA_DIR JAVA_HOME=$YJAVA_HOME nohup sh $ROOT/stream-bench.sh STOP_KAFKA > /dev/null 2>&1 &"
   done
 }
 
