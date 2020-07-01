@@ -384,8 +384,8 @@ run_streaming_job() {
 }
 
 collect_ysar_stats() {
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup mkdir -p $ROOT/ysar_stats > /dev/null 2>&1 &"
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup ysar -int -5 2&1 >> $ROOT/ysar_stats/ysar_$2_$1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup mkdir -p ~/ysar_stats > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup ysar -int 5 > ~/ysar_stats/ysar_$2_$1 &"
 }
 
 run() {
@@ -396,11 +396,12 @@ run() {
     #init_setup
     #setup_configs
     #setup_lein
-    setup_zookeeper_quorum
-    setup_kafka_instances
-    start_redis
-    start_zookeeper_quorum
-    start_kafka_instances
+    collect_ysar_stats 50000 STORM $ADMIN_HOST
+    #setup_zookeeper_quorum
+    #setup_kafka_instances
+    #start_redis
+    #start_zookeeper_quorum
+    #start_kafka_instances
   elif [[ "STOP_LOAD" = "$OP" ]];
   then
     echo "Stopping Load"
