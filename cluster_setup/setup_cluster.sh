@@ -385,7 +385,7 @@ run_streaming_job() {
 
 collect_ysar_stats() {
   ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup mkdir -p $ROOT/ysar_stats > /dev/null 2>&1 &"
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup ysar -int -5 2&1 $ROOT/ysar_stats/ysar_$2_$1>> &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup ysar -int -5 2&1 >> $ROOT/ysar_stats/ysar_$2_$1 &"
 }
 
 run() {
@@ -393,8 +393,8 @@ run() {
   if [[ "SETUP" = "$OP" ]];
   then
     echo "Setup initialized"
-    init_setup
-    setup_configs
+    #init_setup
+    #setup_configs
     #setup_lein
     setup_zookeeper_quorum
     setup_kafka_instances
