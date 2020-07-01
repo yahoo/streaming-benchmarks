@@ -168,53 +168,53 @@ start_spark_cluster() {
   for i in {0..9};
   do
     scp ./bashrc stbl1230n0$i.blue.ygrid.yahoo.com:~
-    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "mv bashrc ~/.bashrc"
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup mv bashrc ~/.bashrc > /dev/null 2>&1 &"
   done
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME SPARK_HOME=$SPARK_DIR SPARK_CONF_DIR=$SPARK_HOME/conf sh $SPARK_DIR/sbin/start-master.sh -h localhost -p 7077 > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME SPARK_HOME=$SPARK_DIR SPARK_CONF_DIR=$SPARK_HOME/conf nohup sh $SPARK_DIR/sbin/start-master.sh -h localhost -p 7077 > /dev/null 2>&1 &"
   sleep 30
-  ssh -o StrictHostKeyChecking=no `whoami`@stbl1230n00.blue.ygrid.yahoo.com "JAVA_HOME=$YJAVA_HOME SPARK_HOME=$SPARK_DIR SPARK_CONF_DIR=$SPARK_HOME/conf sh $SPARK_DIR/sbin/start-slave.sh spark://localhost:7077 > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@stbl1230n00.blue.ygrid.yahoo.com "JAVA_HOME=$YJAVA_HOME SPARK_HOME=$SPARK_DIR SPARK_CONF_DIR=$SPARK_HOME/conf nohup sh $SPARK_DIR/sbin/start-slave.sh spark://localhost:7077 > /dev/null 2>&1 &"
   sleep 30
 }
 
 stop_spark_cluster() {
-  ssh -o StrictHostKeyChecking=no `whoami`@stbl1230n00.blue.ygrid.yahoo.com "JAVA_HOME=$YJAVA_HOME sh $ROOT/stream-bench.sh STOP_SPARK  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@stbl1230n00.blue.ygrid.yahoo.com "JAVA_HOME=$YJAVA_HOME nohup sh $ROOT/stream-bench.sh STOP_SPARK  > /dev/null 2>&1 &"
 }
 
 start_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class spark.benchmark.dstream.KafkaRedisDStreamAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class spark.benchmark.dstream.KafkaRedisDStreamAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
 }
 
 stop_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME sh $ROOT/stream-bench.sh STOP_DSTREAM_SPARK_PROCESSING > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup sh $ROOT/stream-bench.sh STOP_DSTREAM_SPARK_PROCESSING > /dev/null 2>&1 &"
 }
 
 start_ss_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class spark.benchmark.dstream.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class spark.benchmark.dstream.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
 }
 
 stop_ss_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME sh stream-bench.sh STOP_SS_SPARK_PROCESSING  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup sh stream-bench.sh STOP_SS_SPARK_PROCESSING  > /dev/null 2>&1 &"
 }
 
 start_beam_spark_topology() {
   SPARK_VERSION=2.4.6
   SPARK_DIR="$ROOT/spark-$SPARK_VERSION-bin-hadoop2.7"
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "$SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --batchIntervalMillis=3000 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkRunner --batchIntervalMillis=3000 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml  > /dev/null 2>&1 &"
   echo "Starting beam flink topology"
 }
 
 stop_beam_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME sh $ROOT/stream-bench.sh STOP_BEAM_SPARK_PROCESSING > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup sh $ROOT/stream-bench.sh STOP_BEAM_SPARK_PROCESSING > /dev/null 2>&1 &"
 }
 
 start_beam_flink_topology() {
   FLINK_VERSION=1.9.0
   FLINK_DIR="$ROOT/flink-$FLINK_VERSION"
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST  "JAVA_HOME=$YJAVA_HOME FLINK_DIR=$FLINK_DIR $FLINK_DIR/bin/flink run -c apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --streaming --parallelism=72 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST  "JAVA_HOME=$YJAVA_HOME FLINK_DIR=$FLINK_DIR nohup $FLINK_DIR/bin/flink run -c apache.beam.AdvertisingBeamStream $ROOT/apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=FlinkRunner --streaming --parallelism=72 --beamConf=/home/schintap/streaming-benchmarks/conf/localConf.yaml > /dev/null 2>&1 &"
 }
 
 stop_beam_flink_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME FLINK_DIR=$FLINK_DIR  nohup sh $ROOT/stream-bench.sh STOP_BEAM_FLINK_PROCESSING  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME FLINK_DIR=$FLINK_DIR nohup sh $ROOT/stream-bench.sh STOP_BEAM_FLINK_PROCESSING  > /dev/null 2>&1 &"
 }
 
 start_redis() {
@@ -284,7 +284,7 @@ stop_load() {
   for i in $(seq 0 $PRODS);
   do
     echo "Stopping producer $i on stbl1230n0$i.blue.ygrid.yahoo.com"
-    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java sh $ROOT/stream-bench.sh STOP_LOAD"
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "ROOT=$ROOT JAVA_CMD=$YJAVA_HOME/bin/java nohup sh $ROOT/stream-bench.sh STOP_LOAD > /dev/null 2>&1 &"
   done
 }
 
