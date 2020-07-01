@@ -86,8 +86,10 @@ nimbus.seeds: ["10.227.218.204"]
 supervisor.slots.ports:
     - 6700
 
-worker.childopts: "-Xmx384000m -XX:+PrintGCDetails -Xloggc:artifacts/gc.log -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=1M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=artifacts/heapdump"
-topology.childopts: "-Xmx384000m -XX:+PrintGCDetails -Xloggc:artifacts/gc.log -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=10 -XX:GCLogFileSize=1M -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=artifacts/heapdump"
+worker.heap.memory.mb: 384000
+topology.worker.max.heap.size.mb: 384000
+topology.component.resources.onheap.memory.mb: 6000
+
 # Metrics v2 configuration (optional)
 #storm.metrics.reporters:
 #  # Graphite Reporter
