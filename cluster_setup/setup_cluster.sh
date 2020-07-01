@@ -71,6 +71,7 @@ setup_kafka_instances() {
     scp ./server.properties stbl1230n0$i.blue.ygrid.yahoo.com:$KAFKA_DIR/config/
     BROKER_ID=`expr $i - 5`
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "sed -i -e s/broker.id=0/broker.id=$BROKER_ID/ $KAFKA_DIR/config/server.properties > /dev/null 2>&1 &"
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "rm -rf /tmp/kafka-logs > /dev/null 2>&1 &"
   done
 }
 
@@ -375,6 +376,16 @@ run_streaming_job() {
   start_load $1 $2
   sleep $TEST_TIME
   stop_and_clean $1 $2
+  if [[ "STORM" = $2 ]];
+  then
+    ADMIN_HOST="stbl1230n01.blue.ygrid.yahoo.com"
+  fi
+  collect_ysar_stats $1 $2 $ADMIN_HOST
+}
+
+collect_ysar_stats() {
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup mkdir -p $ROOT/ysar_stats > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$3 "nohup ysar -int -5 2&1 $ROOT/ysar_stats/ysar_$2_$1>> &"
 }
 
 run() {
@@ -402,21 +413,21 @@ run() {
     start_storm_cluster
     run_streaming_job 50000 "STORM"
     stop_storm_cluster
-    #start_flink_cluster
-    #run_streaming_job 50000 "FLINK"
-    #stop_flink_cluster
-    #start_flink_cluster
-    #run_streaming_job 50000 "BEAM_FLINK"
-    #stop_flink_cluster
-    #start_spark_cluster
-    #run_streaming_job 50000 "SPARK"
-    #stop_spark_cluster
-    #start_spark_cluster
-    #run_streaming_job 50000 "SS_SPARK"
-    #stop_spark_cluster
-    #start_spark_cluster
-    #run_streaming_job 50000 "BEAM_SPARK"
-    #stop_spark_cluster
+    start_flink_cluster
+    run_streaming_job 50000 "FLINK"
+    stop_flink_cluster
+    start_flink_cluster
+    run_streaming_job 50000 "BEAM_FLINK"
+    stop_flink_cluster
+    start_spark_cluster
+    run_streaming_job 50000 "SPARK"
+    stop_spark_cluster
+    start_spark_cluster
+    run_streaming_job 50000 "SS_SPARK"
+    stop_spark_cluster
+    start_spark_cluster
+    run_streaming_job 50000 "BEAM_SPARK"
+    stop_spark_cluster
   elif [[ "RUN_STORM_SUITE" = "$OP" ]];
   then
     echo "Running storm benchmark suite..."
