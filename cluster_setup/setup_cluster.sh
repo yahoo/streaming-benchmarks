@@ -160,12 +160,12 @@ stop_flink_topology() {
 # Spark start and stop
 # Check if we have slave config file
 start_spark_cluster() {
-  if [ "BEAM" = $1 ];
+  if [[ "BEAM" = $1 ]];
   then
     SPARK_VERSION=2.4.6
     SPARK_DIR="$ROOT/spark-$SPARK_VERSION-bin-hadoop2.7"
   fi
-  printf "export JAVA_HOME=$JAVA_HOME\nexport SPARK_HOME=$SPARK_DIR\nexport SPARK_CONF_DIR=$SPARK_DIR/conf" > ./bashrc
+  printf "export JAVA_HOME=$YJAVA_HOME\nexport SPARK_HOME=$SPARK_DIR\nexport SPARK_CONF_DIR=$SPARK_DIR/conf" > ./bashrc
   for i in {0..9};
   do
     scp ./bashrc stbl1230n0$i.blue.ygrid.yahoo.com:~
@@ -376,11 +376,11 @@ run_streaming_job() {
   start_load $1 $2
   sleep $TEST_TIME
   stop_and_clean $1 $2
-  if [[ "STORM" = $2 ]];
-  then
-    ADMIN_HOST="stbl1230n01.blue.ygrid.yahoo.com"
-  fi
-  collect_ysar_stats $1 $2 $ADMIN_HOST
+  #if [[ "STORM" = $2 ]];
+  #then
+  #  ADMIN_HOST="stbl1230n01.blue.ygrid.yahoo.com"
+  #fi
+  #collect_ysar_stats $1 $2 $ADMIN_HOST
 }
 
 collect_ysar_stats() {
@@ -396,7 +396,8 @@ run() {
     #init_setup
     #setup_configs
     #setup_lein
-    collect_ysar_stats 50000 STORM $ADMIN_HOST
+    #collect_ysar_stats 50000 STORM $ADMIN_HOST
+    start_spark_topology
     #setup_zookeeper_quorum
     #setup_kafka_instances
     #start_redis
@@ -434,8 +435,8 @@ run() {
     echo "Running storm benchmark suite..."
     OP="STORM"
     start_storm_cluster
-    run_streaming_job 50000 $OP
-    run_streaming_job 70000 $OP
+    #run_streaming_job 50000 $OP
+    #run_streaming_job 70000 $OP
     run_streaming_job 90000 $OP
     run_streaming_job 110000 $OP
     run_streaming_job 130000 $OP
