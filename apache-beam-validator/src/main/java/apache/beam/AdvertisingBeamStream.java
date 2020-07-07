@@ -99,7 +99,7 @@ public class AdvertisingBeamStream {
 
                     @StartBundle
                     public void startBundle() {
-                        if (this.redisAdCampaignCache != null) {
+                        if (this.redisAdCampaignCache == null) {
                             this.redisAdCampaignCache = new RedisAdCampaignCache(redisServerHost);
                             this.redisAdCampaignCache.prepare();
                         }
@@ -126,7 +126,7 @@ public class AdvertisingBeamStream {
 
                     @StartBundle
                     public void startBundle() {
-                        if (this.campaignProcessorCommon != null) {
+                        if (this.campaignProcessorCommon == null) {
                             this.campaignProcessorCommon = new CampaignProcessorCommon(redisServerHost);
                             this.campaignProcessorCommon.prepare();
                         }
