@@ -99,8 +99,10 @@ public class AdvertisingBeamStream {
 
                     @StartBundle
                     public void startBundle() {
-                        redisAdCampaignCache = new RedisAdCampaignCache(redisServerHost);
-                        this.redisAdCampaignCache.prepare();
+                        if (this.redisAdCampaignCache != null) {
+                            this.redisAdCampaignCache = new RedisAdCampaignCache(redisServerHost);
+                            this.redisAdCampaignCache.prepare();
+                        }
                     }
                     @ProcessElement
                     public void processElement(ProcessContext c) {
@@ -114,18 +116,28 @@ public class AdvertisingBeamStream {
                             c.output(tuples);
                         }
                     }
+                    @Teardown
+                    public void teardown() {
+                        redisAdCampaignCache.close();
+                    }
                 }))
                 .apply("Campaign Proccessing Event", ParDo.of(new DoFn<List<String>, String>() {
                     CampaignProcessorCommon campaignProcessorCommon;
 
                     @StartBundle
                     public void startBundle() {
-                        this.campaignProcessorCommon = new CampaignProcessorCommon(redisServerHost);
-                        this.campaignProcessorCommon.prepare();
+                        if (this.campaignProcessorCommon != null) {
+                            this.campaignProcessorCommon = new CampaignProcessorCommon(redisServerHost);
+                            this.campaignProcessorCommon.prepare();
+                        }
                     }
                     @ProcessElement
                     public void processElement(ProcessContext c) {
                         this.campaignProcessorCommon.execute(c.element().get(0), c.element().get(2));
+                    }
+                    @Teardown
+                    public void teardown() {
+                        campaignProcessorCommon.close();
                     }
                 }));
         p.run().waitUntilFinish();

@@ -33,4 +33,8 @@ public class RedisAdCampaignCache {
         }
         return campaign_id;
     }
+
+    public void close() {
+        jedis.close();
+    }
 }
