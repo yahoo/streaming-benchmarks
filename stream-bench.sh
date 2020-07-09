@@ -12,13 +12,13 @@ GIT=${GIT:-git}
 MAKE=${MAKE:-make}
 MVN_REPO=${REPO:-"https://repo.maven.apache.org/maven2"}
 
-BEAM_VERSION=${BEAM_VERSION:-"2.20.0"}
+BEAM_VERSION=${BEAM_VERSION:-"2.22.0"}
 KAFKA_VERSION=${KAFKA_VERSION:-"2.4.1"}
 REDIS_VERSION=${REDIS_VERSION:-"6.0.5"}
 SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.12"}
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"2.2.0"}
-FLINK_VERSION=${FLINK_VERSION:-"1.10.1"}
+FLINK_VERSION=${FLINK_VERSION:-"1.11.0"}
 SPARK_VERSION=${SPARK_VERSION:-"3.0.0"}
 HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 
@@ -147,12 +147,12 @@ run() {
     zip -d ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar META-INF/*.RSA META-INF/*.DSA META-INF/*.SF
 
     #Fetch and build Redis: mirror broken, for cluster test not required
-    #REDIS_FILE="$REDIS_DIR.tar.gz"
-    #fetch_untar_file "$REDIS_FILE" "http://download.redis.io/releases/$REDIS_FILE"
+    REDIS_FILE="$REDIS_DIR.tar.gz"
+    fetch_untar_file "$REDIS_FILE" "http://download.redis.io/releases/$REDIS_FILE"
 
-    #cd $REDIS_DIR
-    #$MAKE
-    #cd ..
+    cd $REDIS_DIR
+    $MAKE
+    cd ..
 
     #Fetch Kafka
     KAFKA_FILE="$KAFKA_DIR.tgz"

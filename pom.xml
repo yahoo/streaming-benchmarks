@@ -15,9 +15,9 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-	<beam.version>2.20.0</beam.version>
+	<beam.version>2.22.0</beam.version>
         <beam.flink.runner.version>1.9</beam.flink.runner.version>
-	<beam.spark.version>2.4.5</beam.spark.version>
+	<beam.spark.version>2.4.6</beam.spark.version>
         <spark.version>3.0.0-preview2</spark.version>
         <beam.scala.binary.version>2.11</beam.scala.binary.version>
         <kafka.version>2.4.1</kafka.version>
