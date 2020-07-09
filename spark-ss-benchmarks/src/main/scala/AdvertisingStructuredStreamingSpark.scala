@@ -1,9 +1,7 @@
 /*
- * Copyright 2015, Yahoo Inc.
+ * Copyright 2020, Verizon Media Inc.
  * Licensed under the terms of the Apache License 2.0. Please see LICENSE file in the project root for terms.
  */
-
-// scalastyle:off println
 
 package spark.benchmark.structuredstreaming
 
