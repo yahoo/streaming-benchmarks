@@ -67,6 +67,7 @@ object KafkaRedisSSContinuousAdvertisingStream {
       .format("kafka")
       .option("kafka.bootstrap.servers", brokers)
       .option("subscribe", topic)
+      .option("startingOffsets", "earliest")
       .load()
       .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
 

@@ -18,11 +18,11 @@ Licensed under the terms of the Apache License 2.0. Please see LICENSE file in t
 	<beam.version>2.22.0</beam.version>
         <beam.flink.runner.version>1.9</beam.flink.runner.version>
 	<beam.spark.version>2.4.6</beam.spark.version>
-        <spark.version>3.0.0-preview2</spark.version>
+        <spark.version>3.0.0</spark.version>
         <beam.scala.binary.version>2.11</beam.scala.binary.version>
         <kafka.version>2.4.1</kafka.version>
-        <flink.version>1.10.0</flink.version>
-        <storm.version>2.1.0</storm.version>
+        <flink.version>1.11.0</flink.version>
+        <storm.version>2.2.0</storm.version>
         <scala.binary.version>2.12</scala.binary.version>
         <scala.version>2.12.10</scala.version>
         <json.version>20180813</json.version>

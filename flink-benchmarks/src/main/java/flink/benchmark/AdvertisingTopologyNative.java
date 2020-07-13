@@ -59,6 +59,7 @@ public class AdvertisingTopologyNative {
         }
         // set default parallelism for all operators (recommended value: number of available worker CPU cores in the cluster (hosts * cores))
         env.setParallelism(hosts * cores);
+        //env.enableCheckpointing(1000);
 
         DataStream<String> messageStream = env
                 .addSource(new FlinkKafkaConsumer<>(
