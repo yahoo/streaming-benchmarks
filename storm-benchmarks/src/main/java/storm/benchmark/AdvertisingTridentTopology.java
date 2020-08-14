@@ -63,8 +63,8 @@ public class AdvertisingTridentTopology {
 
         @Override
         public void execute(TridentTuple tuple, TridentCollector collector) {
-            collector.emit(new Values(tuple.getStringByField("ad_id_projected"),
-                    tuple.getStringByField("event_time_projected")));
+            collector.emit(new Values(tuple.getStringByField("ad_id"),
+                    tuple.getStringByField("event_time")));
         }
     }
 
@@ -185,15 +185,14 @@ public class AdvertisingTridentTopology {
                 .shuffle()
                 .each(new Fields("ad_id_projected", "event_time_projected"),
                         new RedisJoin(redisServerHost),
-                        new Fields("campaign_id", "ad_id_joined", "event_time_joined"))
-                .parallelismHint(parallel)
-                .shuffle()
+                        new Fields("campaign_id", "ad_id_joined", "event_time_joined")).name("Trident Redis Join Bolt")
                 .groupBy(new Fields("campaign_id"))
                 .toStream()
-                .each(new Fields("campaign_id", "ad_id_joined", "ad_id_joined"),
+                .shuffle()
+                .each(new Fields("campaign_id", "ad_id_joined", "event_time_joined"),
                         new CampaignProcessor(redisServerHost),
-                        new Fields("campaign_id_complete"))
-                .parallelismHint(parallel*2)
+                        new Fields("campaign_id_complete")).name("Trident Campaign Bolt")
+                .parallelismHint(parallel*4)
                 .shuffle();
         
         Config conf = new Config();

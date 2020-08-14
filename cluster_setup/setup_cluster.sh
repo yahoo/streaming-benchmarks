@@ -131,6 +131,16 @@ stop_storm_topology() {
   sleep 10
 }
 
+start_trident_storm_topology() {
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $STORM_DIR/bin/storm jar $ROOT/storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTridentTopology test-trident-topo -conf $CONF_FILE > /dev/null 2>&1"
+  sleep 15
+}
+
+stop_trident_storm_topology() {
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $STORM_DIR/bin/storm kill -w 0 test-trident-topo  > /dev/null 2>&1 &"
+  sleep 10
+}
+
 stop_storm_cluster() {
   ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "STORM_DIR=$STORM_DIR nohup sh $ROOT/stream-bench.sh STOP_STORM > /dev/null 2>&1 &"
   ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com "STORM_DIR=$STORM_DIR nohup sh $ROOT/stream-bench.sh STOP_STORM > /dev/null 2>&1 &"
@@ -246,6 +256,10 @@ start_load() {
   then
     stop_storm_topology
     start_storm_topology
+  elif [[ "TRIDENT_STORM" = "$2" ]];
+  then
+    stop_trident_storm_topology
+    start_trident_storm_topology
   elif [[ "FLINK" = "$2" ]];
   then
     stop_flink_topology
@@ -336,6 +350,11 @@ stop_and_clean() {
     sleep 120
     echo "Stopping Storm topology and clean up"
     stop_storm_topology
+  elif [[ "TRIDENT_STORM" = "$2" ]];
+  then
+    sleep 120
+    echo "Stopping Trident Storm topology and clean up"
+    stop_trident_storm_topology
   elif [[ "FLINK" = "$2" ]];
   then
     sleep 120
@@ -445,6 +464,23 @@ run() {
     run_streaming_job 170000 $OP
     stop_storm_cluster
     echo "Storm benchmark suite completed..."
+  elif [[ "RUN_TRIDENT_STORM_SUITE" = "$OP" ]];
+  then
+    echo "Running storm benchmark suite..."
+    OP="TRIDENT_STORM"
+    start_storm_cluster
+    run_streaming_job 50000 $OP
+    run_streaming_job 70000 $OP
+    run_streaming_job 90000 $OP
+    run_streaming_job 110000 $OP
+    run_streaming_job 130000 $OP
+    run_streaming_job 135000 $OP
+    run_streaming_job 150000 $OP
+    run_streaming_job 170000 $OP
+    run_streaming_job 200000 $OP
+    run_streaming_job 250000 $OP
+    stop_storm_cluster
+    echo "Storm Trident benchmark suite completed..."
   elif [[ "RUN_FLINK_SUITE" = "$OP" ]];
   then
     echo "Running Flink benchmark suite..."
@@ -525,6 +561,7 @@ run() {
   else
     echo "Note: You can run this from your mac or admin host stbl1230n00.blue.ygrid.yahoo.com"
     echo "Storm -> sh setup_cluster.sh RUN_STORM_SUITE"
+    echo "Storm -> sh setup_cluster.sh RUN_TRIDENT_STORM_SUITE"
     echo "Spark -> sh setup_cluster.sh RUN_SPARK_SUITE"
     echo "SS Spark -> sh setup_cluster.sh RUN_SS_SPARK_SUITE"
     echo "Flink -> sh setup_cluster.sh RUN_STORM_SUITE"
