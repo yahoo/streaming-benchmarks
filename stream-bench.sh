@@ -250,6 +250,15 @@ run() {
   then
     "$STORM_DIR/bin/storm" kill -w 0 test-topo || true
     sleep 10
+  elif [ "START_TRIDENT_STORM_TOPOLOGY" = "$OPERATION" ];
+  then
+    "$STORM_DIR/bin/storm" jar ./storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTridentTopology test-trident-topo -conf $CONF_FILE
+    sleep 15
+  elif [ "STOP_TRIDENT_STORM_TOPOLOGY" = "$OPERATION" ];
+  then
+    "$STORM_DIR/bin/storm" kill -w 0 test-trident-topo || true
+    sleep 10
+
   elif [ "START_BEAM_SS_SPARK_PROCESSING" = "$OPERATION" ];
   then
     "$SPARK_DIR/bin/spark-submit" --master spark://localhost:7077 --class apache.beam.AdvertisingBeamStream ./apache-beam-validator/target/apache-beam-validator-0.1.0.jar --runner=SparkStructuredStreamingRunner --conf="$CONF_FILE" &
@@ -310,6 +319,21 @@ run() {
     sleep $TEST_TIME
     run "STOP_LOAD"
     run "STOP_STORM_TOPOLOGY"
+    run "STOP_STORM"
+    run "STOP_KAFKA"
+    run "STOP_REDIS"
+    run "STOP_ZK"
+  elif [ "STORM_TRIDENT_TEST" = "$OPERATION" ];
+  then
+    run "START_ZK"
+    run "START_REDIS"
+    run "START_KAFKA"
+    run "START_STORM"
+    run "START_TRIDENT_STORM_TOPOLOGY"
+    run "START_LOAD"
+    sleep $TEST_TIME
+    run "STOP_LOAD"
+    run "STOP_TRIDENT_STORM_TOPOLOGY"
     run "STOP_STORM"
     run "STOP_KAFKA"
     run "STOP_REDIS"
@@ -444,6 +468,8 @@ run() {
     echo
     echo "START_STORM_TOPOLOGY: run the storm test topology"
     echo "STOP_STORM_TOPOLOGY: kill the storm test topology"
+    echo "START_TRIDENT_STORM_TOPOLOGY: run the storm test topology"
+    echo "STOP_TRIDENT_STORM_TOPOLOGY: kill the storm test topology"
     echo "START_FLINK_PROCESSING: run the flink test processing"
     echo "STOP_FLINK_PROCESSSING: kill the flink test processing"
     echo "START_DSTREAM_SPARK_PROCESSING: run the spark legacy dstream test processing"
@@ -458,6 +484,7 @@ run() {
     echo "STOP_BEAM_FLINK_PROCESSING: kill apache beam flink runner pipeline"
     echo
     echo "STORM_TEST: run storm test (assumes SETUP is done)"
+    echo "STORM_TRIDENT_TEST: run storm test (assumes SETUP is done)"
     echo "FLINK_TEST: run flink test (assumes SETUP is done)"
     echo "SPARK_DSTREAM_TEST: run spark dstream legacy test (assumes SETUP is done)"
     echo "SPARK_SS_TEST: run spark structured streaming test (assumes SETUP is done)"

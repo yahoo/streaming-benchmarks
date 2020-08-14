@@ -201,12 +201,12 @@ public class AdvertisingTridentTopology {
         if (args != null && args.length > 0) {
             conf.setNumWorkers(workers);
             conf.setNumAckers(ackers);
-            StormSubmitter.submitTopologyWithProgressBar(args[0], conf, builder.createTopology());
+            StormSubmitter.submitTopologyWithProgressBar(args[0], conf, topology.build());
         }
         else {
 
             LocalCluster cluster = new LocalCluster();
-            cluster.submitTopology("test", conf, builder.createTopology());
+            cluster.submitTopology("test", conf, topology.build());
             org.apache.storm.utils.Utils.sleep(10000);
             cluster.killTopology("test");
             cluster.shutdown();
