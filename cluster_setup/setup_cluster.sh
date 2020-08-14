@@ -59,6 +59,7 @@ setup_zookeeper_quorum() {
   do
     # Required for zookeeper server id's
     ZK_ID=`expr $i - 4`
+    ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "rm -rf $ZK_DIR"
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "mkdir -p $ZK_DIR"
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "echo $ZK_ID > $ZK_DIR/myid"
   done
@@ -132,12 +133,12 @@ stop_storm_topology() {
 }
 
 start_trident_storm_topology() {
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $STORM_DIR/bin/storm jar $ROOT/storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTridentTopology test-trident-topo -conf $CONF_FILE > /dev/null 2>&1"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $STORM_DIR/bin/storm jar $ROOT/storm-benchmarks/target/storm-benchmarks-0.1.0.jar storm.benchmark.AdvertisingTridentTopology test-topo -conf $CONF_FILE > /dev/null 2>&1"
   sleep 15
 }
 
 stop_trident_storm_topology() {
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $STORM_DIR/bin/storm kill -w 0 test-trident-topo  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $STORM_DIR/bin/storm kill -w 0 test-topo  > /dev/null 2>&1 &"
   sleep 10
 }
 
@@ -251,6 +252,8 @@ stop_redis() {
 start_load() {
   LOAD=`expr $1 / $PRODUCERS`
   # Create result dir
+  dt=`date -u`
+  test=`echo $1" "$2" "$dt | tee -a ysar_timestamps.txt`
   create_redis_campaigns
   if [[ "STORM" = "$2" ]];
   then
@@ -353,7 +356,7 @@ stop_and_clean() {
   elif [[ "TRIDENT_STORM" = "$2" ]];
   then
     sleep 120
-    echo "Stopping Trident Storm topology and clean up"
+    echo "Stopping Storm Trident topology and clean up"
     stop_trident_storm_topology
   elif [[ "FLINK" = "$2" ]];
   then
@@ -384,7 +387,17 @@ stop_and_clean() {
 
   # Wait for messages to clean up retention period expiry 15 min retention
   # This way we dont have to stop kafka hosts and restart them
-  sleep 900
+  #sleep 900
+
+
+  stop_kafka_instances
+  stop_zookeeper_quorum
+  stop_redis
+  setup_zookeeper_quorum
+  setup_kafka_instances
+  start_redis
+  start_zookeeper_quorum
+  start_kafka_instances
 
   # move results for graphs seen/updated to results/s<framework>/load/seen,updated
   ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mv $ROOT/data/seen.txt ~/results/$2/$1/  > /dev/null 2>&1 &"
@@ -416,12 +429,12 @@ run() {
     #setup_configs
     #setup_lein
     #collect_ysar_stats 50000 STORM $ADMIN_HOST
-    start_spark_topology
-    #setup_zookeeper_quorum
-    #setup_kafka_instances
-    #start_redis
-    #start_zookeeper_quorum
-    #start_kafka_instances
+    #start_spark_topology
+    setup_zookeeper_quorum
+    setup_kafka_instances
+    start_redis
+    start_zookeeper_quorum
+    start_kafka_instances
   elif [[ "STOP_LOAD" = "$OP" ]];
   then
     echo "Stopping Load"
@@ -470,17 +483,33 @@ run() {
     OP="TRIDENT_STORM"
     start_storm_cluster
     run_streaming_job 50000 $OP
-    run_streaming_job 70000 $OP
-    run_streaming_job 90000 $OP
-    run_streaming_job 110000 $OP
-    run_streaming_job 130000 $OP
-    run_streaming_job 135000 $OP
-    run_streaming_job 150000 $OP
-    run_streaming_job 170000 $OP
-    run_streaming_job 200000 $OP
-    run_streaming_job 250000 $OP
     stop_storm_cluster
-    echo "Storm Trident benchmark suite completed..."
+
+    start_storm_cluster
+    run_streaming_job 70000 $OP
+    stop_storm_cluster
+
+    start_storm_cluster
+    run_streaming_job 90000 $OP
+    stop_storm_cluster
+
+    start_storm_cluster
+    run_streaming_job 110000 $OP
+    stop_storm_cluster
+
+    start_storm_cluster
+    run_streaming_job 130000 $OP
+    stop_storm_cluster
+
+    start_storm_cluster
+    run_streaming_job 150000 $OP
+    stop_storm_cluster
+
+    start_storm_cluster
+    run_streaming_job 170000 $OP
+    stop_storm_cluster
+
+    echo "Storm benchmark suite completed..."
   elif [[ "RUN_FLINK_SUITE" = "$OP" ]];
   then
     echo "Running Flink benchmark suite..."
@@ -502,7 +531,7 @@ run() {
     start_spark_cluster
     run_streaming_job 50000 $OP
     run_streaming_job 70000 $OP
-    run_streaming_job 90000 $OP
+    run_streaming_job 90000 $OPZ
     run_streaming_job 110000 $OP
     run_streaming_job 130000 $OP
     run_streaming_job 135000 $OP
@@ -532,7 +561,6 @@ run() {
     run_streaming_job 50000 $OP
     run_streaming_job 70000 $OP
     run_streaming_job 90000 $OP
-    run_streaming_job 110000 $OP
     run_streaming_job 130000 $OP
     run_streaming_job 135000 $OP
     run_streaming_job 150000 $OP

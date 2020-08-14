@@ -162,6 +162,7 @@ public class AdvertisingTridentTopology {
         TridentTopology topology = new TridentTopology();
         Stream spoutStream = topology.newStream("KafkaSpout",
                 new KafkaTridentSpoutOpaque(getKafkaSpoutConfig(kafkaBrokers, kafkaTopic)))
+                .shuffle()
                 .parallelismHint(kafkaPartitions);
 
         spoutStream
@@ -173,28 +174,28 @@ public class AdvertisingTridentTopology {
                                 "event_type",
                                 "event_time",
                                 "ip_address")).name("Trident Deserialize Bolt")
-                .parallelismHint(parallel)
                 .shuffle()
+                .parallelismHint(kafkaPartitions)
                 .filter(new FilterEvent()).name("Trident Filter Bolt")
-                .parallelismHint(parallel)
                 .shuffle()
+                .parallelismHint(kafkaPartitions)
                 .each(new Fields("ad_id", "event_time"),
                         new ProjectEvent(),
                         new Fields("ad_id_projected", "event_time_projected")).name("Trident Projection Bolt")
-                .parallelismHint(parallel)
                 .shuffle()
+                .parallelismHint(parallel)
                 .each(new Fields("ad_id_projected", "event_time_projected"),
                         new RedisJoin(redisServerHost),
                         new Fields("campaign_id", "ad_id_joined", "event_time_joined")).name("Trident Redis Join Bolt")
                 .groupBy(new Fields("campaign_id"))
                 .toStream()
-                .shuffle()
+                .parallelismHint(parallel)
                 .each(new Fields("campaign_id", "ad_id_joined", "event_time_joined"),
                         new CampaignProcessor(redisServerHost),
-                        new Fields("campaign_id_complete")).name("Trident Campaign Bolt")
-                .parallelismHint(parallel*4)
-                .shuffle();
-        
+                        new Fields("campaign_id_complete"))
+                .shuffle()
+                .parallelismHint(parallel*4);
+
         Config conf = new Config();
 
         if (args != null && args.length > 0) {
