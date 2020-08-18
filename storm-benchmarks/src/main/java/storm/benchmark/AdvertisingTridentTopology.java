@@ -6,10 +6,12 @@ import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
 import org.apache.storm.kafka.spout.trident.KafkaTridentSpoutConfig;
 import org.apache.storm.kafka.spout.trident.KafkaTridentSpoutOpaque;
+import org.apache.storm.kafka.spout.trident.KafkaTridentSpoutTransactional;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.trident.operation.BaseFilter;
 import org.apache.storm.trident.operation.BaseFunction;
+import org.apache.storm.trident.operation.MapFunction;
 import org.apache.storm.trident.operation.TridentCollector;
 import org.apache.storm.trident.tuple.TridentTuple;
 import org.apache.storm.tuple.Fields;
@@ -68,6 +70,15 @@ public class AdvertisingTridentTopology {
         }
     }
 
+//    public static class ProjectEvent implements MapFunction {
+//
+//        @Override
+//        public Values execute(TridentTuple tuple) {
+//            return new Values(tuple.getStringByField("ad_id"),
+//                    tuple.getStringByField("event_time"));
+//        }
+//    }
+
     public static class RedisJoin extends BaseFunction {
         transient RedisAdCampaignCache redisAdCampaignCache;
         private String redisServerHost;
@@ -93,6 +104,32 @@ public class AdvertisingTridentTopology {
         }
     }
 
+//    public static class RedisJoin implements MapFunction {
+//        transient RedisAdCampaignCache redisAdCampaignCache;
+//        private String redisServerHost;
+//
+//        public RedisJoin(String redisServerHost) {
+//            this.redisServerHost = redisServerHost;
+//        }
+//
+//        @Override
+//        public Values execute(TridentTuple tuple) {
+//            if (this.redisAdCampaignCache == null) {
+//                redisAdCampaignCache = new RedisAdCampaignCache(this.redisServerHost);
+//                this.redisAdCampaignCache.prepare();
+//            }
+//            String ad_id = tuple.getStringByField("ad_id_projected");
+//            String campaign_id = this.redisAdCampaignCache.execute(ad_id);
+//            if(campaign_id == null) {
+//                return null;
+//            }
+//            return new Values(campaign_id,
+//                    tuple.getStringByField("ad_id_projected"),
+//                    tuple.getStringByField("event_time_projected"));
+//        }
+//    }
+
+
     public static class CampaignProcessor extends BaseFunction {
 
         transient private CampaignProcessorCommon campaignProcessorCommon;
@@ -115,6 +152,29 @@ public class AdvertisingTridentTopology {
             collector.emit(new Values(campaign_id));
         }
     }
+
+//    public static class CampaignProcessor implements MapFunction {
+//
+//        transient private CampaignProcessorCommon campaignProcessorCommon;
+//        private String redisServerHost;
+//
+//        public CampaignProcessor(String redisServerHost) {
+//            this.redisServerHost = redisServerHost;
+//        }
+//
+//        @Override
+//        public Values execute(TridentTuple tuple) {
+//            if(this.campaignProcessorCommon == null) {
+//                campaignProcessorCommon = new CampaignProcessorCommon(redisServerHost);
+//                this.campaignProcessorCommon.prepare();
+//            }
+//            String campaign_id = tuple.getStringByField("campaign_id");
+//            String event_time = tuple.getStringByField("event_time_joined");
+//
+//            this.campaignProcessorCommon.execute(campaign_id, event_time);
+//            return new Values(campaign_id);
+//        }
+//    }
 
     private static KafkaTridentSpoutConfig<String, String> getKafkaSpoutConfig(String bootstrapServers,
                                                                         String kafkaTopic) {
@@ -161,9 +221,11 @@ public class AdvertisingTridentTopology {
 
         TridentTopology topology = new TridentTopology();
         Stream spoutStream = topology.newStream("KafkaSpout",
-                new KafkaTridentSpoutOpaque(getKafkaSpoutConfig(kafkaBrokers, kafkaTopic)))
-                .shuffle()
-                .parallelismHint(kafkaPartitions);
+                new KafkaTridentSpoutTransactional(getKafkaSpoutConfig(kafkaBrokers,
+                        kafkaTopic)))
+                .name("Kafka Trident Transactional Spout")
+                .parallelismHint(kafkaPartitions)
+                .shuffle();
 
         spoutStream
                 .each(new Fields("value"), new DeserializeJSONEvent(),
@@ -174,26 +236,37 @@ public class AdvertisingTridentTopology {
                                 "event_type",
                                 "event_time",
                                 "ip_address")).name("Trident Deserialize Bolt")
+                .parallelismHint(parallel)
                 .shuffle()
-                .parallelismHint(kafkaPartitions)
                 .filter(new FilterEvent()).name("Trident Filter Bolt")
+                .parallelismHint(parallel)
                 .shuffle()
-                .parallelismHint(kafkaPartitions)
                 .each(new Fields("ad_id", "event_time"),
                         new ProjectEvent(),
                         new Fields("ad_id_projected", "event_time_projected")).name("Trident Projection Bolt")
-                .shuffle()
                 .parallelismHint(parallel)
+                .shuffle()
+//                .map(new ProjectEvent(),
+//                        new Fields("ad_id_projected", "event_time_projected")).name("Trident Projection Bolt")
+//                .shuffle()
+//                .parallelismHint(parallel)
+//                .map(new RedisJoin(redisServerHost),
+//                        new Fields("campaign_id", "ad_id_joined", "event_time_joined")).name("Trident Redis Join Bolt")
+//                .shuffle()
+//                .parallelismHint(parallel)
+//                .map(new CampaignProcessor(redisServerHost),
+//                        new Fields("campaign_id_complete")).name("Trident Campaign Processing bolt")
+//                .shuffle()
+//                .parallelismHint(parallel);
                 .each(new Fields("ad_id_projected", "event_time_projected"),
                         new RedisJoin(redisServerHost),
                         new Fields("campaign_id", "ad_id_joined", "event_time_joined")).name("Trident Redis Join Bolt")
+                .parallelismHint(parallel)
                 .groupBy(new Fields("campaign_id"))
                 .toStream()
-                .parallelismHint(parallel)
                 .each(new Fields("campaign_id", "ad_id_joined", "event_time_joined"),
                         new CampaignProcessor(redisServerHost),
                         new Fields("campaign_id_complete"))
-                .shuffle()
                 .parallelismHint(parallel*4);
 
         Config conf = new Config();
