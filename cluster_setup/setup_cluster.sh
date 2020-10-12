@@ -4,12 +4,15 @@ BEAM_VERSION=${BEAM_VERSION:-"2.20.0"}
 KAFKA_VERSION=${KAFKA_VERSION:-"2.4.1"}
 REDIS_VERSION=${REDIS_VERSION:-"6.0.1"}
 SCALA_BIN_VERSION=${SCALA_BIN_VERSION:-"2.12"}
+HADOOP_HOME=/home/schintap/hadoop-2.8.3
+HADOOP_PREFIX=$HADOOP_HOME
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"2.2.0"}
 FLINK_VERSION=${FLINK_VERSION:-"1.10.1"}
 SPARK_VERSION=${SPARK_VERSION:-"3.0.0"}
 HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 YJAVA_HOME=${YJAVA_HOME:-"/home/y/share/yjava_jdk/java"}
+HADOOP_CLASSPATH=/home/schintap/hadoop-2.8.3/etc/hadoop:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jetty-sslengine-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jets3t-0.9.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/httpcore-4.4.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/htrace-core4-4.0.1-incubating.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-configuration-1.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jsr305-3.0.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-lang-2.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/curator-recipes-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jaxb-impl-2.2.3-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/java-xmlbuilder-0.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-jaxrs-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/snappy-java-1.0.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/curator-framework-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jsch-0.1.54.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/guava-11.0.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/zookeeper-3.4.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jaxb-api-2.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-logging-1.1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/slf4j-api-1.7.10.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/paranamer-2.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jersey-json-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/api-util-1.0.0-M20.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jettison-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/apacheds-i18n-2.0.0-M15.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-codec-1.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-digester-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-beanutils-1.7.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/gson-2.2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-compress-1.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-collections-3.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-net-3.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-math3-3.1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jsp-api-2.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/hamcrest-core-1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/stax-api-1.0-2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-beanutils-core-1.8.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/apacheds-kerberos-codec-2.0.0-M15.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jetty-util-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/api-asn1-api-1.0.0-M20.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/xz-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/hadoop-auth-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-xc-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jcip-annotations-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/mockito-all-1.8.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/curator-client-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/servlet-api-2.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/json-smart-1.1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/xmlenc-0.52.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/activation-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/avro-1.7.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/hadoop-annotations-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jetty-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/nimbus-jose-jwt-3.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-cli-1.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/junit-4.11.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/httpclient-4.5.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/hadoop-nfs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/hadoop-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/hadoop-common-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/htrace-core4-4.0.1-incubating.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jsr305-3.0.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-lang-2.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/guava-11.0.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-daemon-1.0.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-logging-1.1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/netty-all-4.0.23.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/xercesImpl-2.9.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-codec-1.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/xml-apis-1.3.04.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jetty-util-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/okio-1.4.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/okhttp-2.4.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/hadoop-hdfs-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/servlet-api-2.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/leveldbjni-all-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/xmlenc-0.52.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jetty-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-cli-1.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-nfs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-native-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-native-client-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-client-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-client-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jsr305-3.0.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-lang-2.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jaxb-impl-2.2.3-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/zookeeper-3.4.6-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-jaxrs-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/guava-11.0.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/zookeeper-3.4.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jaxb-api-2.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-logging-1.1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-json-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-guice-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jettison-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/guice-servlet-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/json-io-2.5.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/javassist-3.18.1-GA.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-math-2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-codec-1.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-compress-1.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/guice-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-collections-3.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/aopalliance-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/stax-api-1.0-2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jetty-util-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/xz-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-xc-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/java-util-1.9.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/fst-2.50.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/javax.inject-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/curator-client-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/servlet-api-2.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/leveldbjni-all-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/activation-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jetty-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-cli-1.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/curator-test-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-api-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-sharedcachemanager-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-resourcemanager-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-nodemanager-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-web-proxy-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-timeline-pluginstorage-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-registry-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-applications-distributedshell-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-tests-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-applications-unmanaged-am-launcher-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/snappy-java-1.0.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/paranamer-2.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jersey-guice-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/guice-servlet-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/commons-compress-1.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/guice-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/aopalliance-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/hamcrest-core-1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/xz-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/javax.inject-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/leveldbjni-all-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/avro-1.7.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/hadoop-annotations-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/junit-4.11.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-app-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-plugins-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.8.3.jar:/home/schintap/hadoop-2.8.3/etc/hadoop:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jetty-sslengine-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jets3t-0.9.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/httpcore-4.4.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/htrace-core4-4.0.1-incubating.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-configuration-1.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jsr305-3.0.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-lang-2.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/curator-recipes-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jaxb-impl-2.2.3-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/java-xmlbuilder-0.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-jaxrs-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/snappy-java-1.0.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/curator-framework-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jsch-0.1.54.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/guava-11.0.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/zookeeper-3.4.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jaxb-api-2.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-logging-1.1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/slf4j-api-1.7.10.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/paranamer-2.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jersey-json-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/api-util-1.0.0-M20.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jettison-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/apacheds-i18n-2.0.0-M15.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-codec-1.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-digester-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-beanutils-1.7.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/gson-2.2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-compress-1.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-collections-3.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-net-3.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-math3-3.1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jsp-api-2.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/hamcrest-core-1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/stax-api-1.0-2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-beanutils-core-1.8.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/apacheds-kerberos-codec-2.0.0-M15.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jetty-util-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/api-asn1-api-1.0.0-M20.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/xz-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/hadoop-auth-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-xc-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jcip-annotations-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/mockito-all-1.8.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/curator-client-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/slf4j-log4j12-1.7.10.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/servlet-api-2.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/json-smart-1.1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/xmlenc-0.52.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/activation-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/avro-1.7.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/hadoop-annotations-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/jetty-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/nimbus-jose-jwt-3.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/commons-cli-1.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/junit-4.11.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/lib/httpclient-4.5.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/hadoop-nfs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/hadoop-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/common/hadoop-common-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/htrace-core4-4.0.1-incubating.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jsr305-3.0.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-lang-2.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/guava-11.0.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-daemon-1.0.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-logging-1.1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/netty-all-4.0.23.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/xercesImpl-2.9.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-codec-1.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/xml-apis-1.3.04.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jetty-util-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/okio-1.4.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/okhttp-2.4.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/hadoop-hdfs-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/servlet-api-2.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/leveldbjni-all-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/xmlenc-0.52.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/jetty-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/lib/commons-cli-1.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-nfs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-native-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-native-client-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-client-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/hdfs/hadoop-hdfs-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-client-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jsr305-3.0.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-lang-2.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jaxb-impl-2.2.3-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/zookeeper-3.4.6-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-jaxrs-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/guava-11.0.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/zookeeper-3.4.6.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jaxb-api-2.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-logging-1.1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-json-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-guice-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jettison-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/guice-servlet-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/json-io-2.5.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/javassist-3.18.1-GA.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-math-2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-codec-1.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-compress-1.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/guice-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-collections-3.2.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/aopalliance-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/stax-api-1.0-2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jetty-util-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/xz-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-xc-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/java-util-1.9.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/fst-2.50.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/javax.inject-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/curator-client-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/servlet-api-2.5.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/leveldbjni-all-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/activation-1.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/jetty-6.1.26.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/commons-cli-1.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/lib/curator-test-2.7.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-api-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-client-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-sharedcachemanager-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-resourcemanager-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-nodemanager-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-web-proxy-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-timeline-pluginstorage-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-registry-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-applications-distributedshell-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-server-tests-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/yarn/hadoop-yarn-applications-unmanaged-am-launcher-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jersey-core-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/snappy-java-1.0.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/paranamer-2.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jersey-guice-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/commons-io-2.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/guice-servlet-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/asm-3.2.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jackson-mapper-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/log4j-1.2.17.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/commons-compress-1.4.1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/guice-3.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/aopalliance-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/hamcrest-core-1.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/xz-1.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/protobuf-java-2.5.0.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/javax.inject-1.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jersey-server-1.9.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/leveldbjni-all-1.8.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/jackson-core-asl-1.9.13.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/netty-3.6.2.Final.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/avro-1.7.4.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/hadoop-annotations-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/lib/junit-4.11.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.8.3-tests.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-core-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-common-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-app-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-plugins-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.8.3.jar:/home/schintap/hadoop-2.8.3/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-2.8.3.jar:/home/schintap/hadoop-2.8.3/contrib/capacity-scheduler/*.jar:/home/schintap/hadoop-2.8.3/contrib/capacity-scheduler/*.jar
 
 STORM_DIR="$ROOT/apache-storm-$STORM_VERSION"
 REDIS_DIR="$ROOT/redis-$REDIS_VERSION"
@@ -53,9 +56,83 @@ setup_lein() {
   cd -
 }
 
+setup_yarn_cluster() {
+  zip -r ./hadoop-2.8.3.zip ./hadoop-2.8.3
+  for i in {0..4};
+  do
+     scp ./hadoop-2.8.3.zip stbl1230n0$i.blue.ygrid.yahoo.com:~
+     scp ./hadoop.sh stbl1230n0$i.blue.ygrid.yahoo.com:~
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'sudo mv ~/hadoop.sh /etc/profile.d/'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'sudo chmod 777 /etc/profile.d/hadoop.sh'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup rm -rf ~/hadoop-2.8.3 > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup unzip -o ~/hadoop-2.8.3.zip > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup rm -rf /tmp/dfs > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup rm -rf /tmp/yarn > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup mkdir -p /tmp/dfs/namenode && chmod -R 777 /tmp/dfs/namenode > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup mkdir -p /tmp/dfs/journal/node/local/data && chmod -R 777 /tmp/dfs/journal > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup mkdir -p /tmp/dfs/data && chmod -R 777 /tmp/dfs/data > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup mkdir -p /tmp/yarn/nm-local-dir && chmod -R 777 /tmp/yarn/nm-local-dir > /dev/null 2>&1 &'
+     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'nohup mkdir -p /tmp/yarn/nm-log && chmod -R 777 /tmp/yarn/nm-log > /dev/null 2>&1 &'
+  done
+}
+
+stop_yarn_cluster() {
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/sbin/stop-dfs.sh && sleep 10 > /dev/null &"
+  #for i in {1..4};
+  #do
+  #  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/hadoop-daemon.sh stop journalnode > /dev/null &"
+  #  sleep 10
+  #done
+  #for i in {1..2};
+  #do
+  #  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/yarn-daemon.sh --config $HADOOP_HOME/etc/hadoop stop resourcemanager && sleep 10 > /dev/null &"
+  #done
+  #for i in {1..4};
+  #do
+  #  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/yarn-daemon.sh --config $HADOOP_HOME/etc/hadoop stop nodemanager && sleep 10 > /dev/null &"
+  #done
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/sbin/stop-yarn.sh && sleep 10 > /dev/null &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/yarn-daemon.sh --config $HADOOP_HOME/etc/hadoop stop resourcemanager && sleep 10 > /dev/null &"
+
+}
+
+start_yarn_cluster() {
+  #for i in {1..4};
+  #do
+  #  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/hadoop-daemon.sh start journalnode > /dev/null &"
+  #  sleep 10
+  #done
+
+  #for i in {1..2};
+  #do
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/bin/hdfs namenode -format> /dev/null &"
+  #  sleep 10
+  #done
+
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/bin/hdfs zkfc -formatZK > /dev/null &"
+
+  #for i in {1..4};
+  #do
+  #  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/hadoop-daemon.sh stop journalnode > /dev/null &"
+  #  sleep 10
+  #done
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/bin/hdfs dfsadmin -report && sleep 10 > /dev/null &"
+  #for i in {1..2};
+  #do
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/sbin/start-dfs.sh && sleep 10 > /dev/null &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/yarn-daemon.sh --config $HADOOP_HOME/etc/hadoop start resourcemanager && sleep 10 > /dev/null &"
+  #done
+  #for i in {1..4};
+  #do
+  #  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/yarn-daemon.sh --config $HADOOP_HOME/etc/hadoop start nodemanager && sleep 10 > /dev/null &"
+  #done
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/sbin/start-yarn.sh && sleep 10 > /dev/null &"
+}
+
 setup_zookeeper_quorum() {
   # TODO: Replace for loops based on file list or env variables
   for i in {5..7};
+  #for i in {5..5};
   do
     # Required for zookeeper server id's
     ZK_ID=`expr $i - 4`
@@ -68,6 +145,7 @@ setup_zookeeper_quorum() {
 setup_kafka_instances() {
   # TODO: Replace for loops based on file list or env variables
   for i in {5..9};
+  #for i in {5..5};
   do
     scp ./server.properties stbl1230n0$i.blue.ygrid.yahoo.com:$KAFKA_DIR/config/
     BROKER_ID=`expr $i - 5`
@@ -79,6 +157,7 @@ setup_kafka_instances() {
 start_zookeeper_quorum() {
   # TODO: Replace for loops based on file list or env variables
   for i in {5..7};
+  #for i in {5..5};
   do
     echo "Starting zookeeper on host stbl1230n0$i.blue.ygrid.yahoo.com"
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "JAVA_HOME=$YJAVA_HOME nohup $KAFKA_DIR/bin/zookeeper-server-start.sh $KAFKA_DIR/config/zookeeper.properties > /dev/null 2>&1 &"
@@ -87,6 +166,7 @@ start_zookeeper_quorum() {
 
 stop_zookeeper_quorum() {
   for i in {5..7};
+  #for i in {5..5};
   do
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "nohup sh $ROOT/stream-bench.sh STOP_ZK > /dev/null 2>&1 &"
   done
@@ -99,6 +179,7 @@ create_kafka_topic() {
 start_kafka_instances() {
   # TODO: Replace for loops based on file list or env variables
   for i in {5..9};
+  #for i in {5..5};
   do
     echo "Starting kafka instance on host stbl1230n0$i.blue.ygrid.yahoo.com"
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "JAVA_HOME=$YJAVA_HOME nohup $KAFKA_DIR/bin/kafka-server-start.sh $KAFKA_DIR/config/server.properties > /dev/null 2>&1 &"
@@ -108,6 +189,7 @@ start_kafka_instances() {
 
 stop_kafka_instances() {
   for i in {5..9};
+  #for i in {5..5};
   do
     ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com "KAFKA_DIR=$KAFKA_DIR JAVA_HOME=$YJAVA_HOME nohup sh $ROOT/stream-bench.sh STOP_KAFKA > /dev/null 2>&1 &"
   done
@@ -168,6 +250,25 @@ stop_flink_topology() {
   echo "Stopping flink topology"
 }
 
+start_flink_yarn_topology() {
+  echo "Starting flink yarn topology"
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $FLINK_DIR/bin/bin/yarn-session.sh -jm 1024m -tm 384000m > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/yarn-session.sh -jm 1024m -tm 374000m > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster -ys 72 -yjm 1024m -ytm 374000m $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE > /dev/null 2>&1 &"
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster -ys 72 -yjm 1024m -ytm 384000m $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE"
+  sleep 100
+}
+
+test_ssh() {
+   ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com 'nohup rm -rf ~/hadoop-2.8.3'
+   #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster -ys 72 -yjm 1024m -ytm 374000m $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE"
+}
+
+stop_flink_yarn_topology() {
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME FLINK_DIR=$FLINK_DIR nohup sh $ROOT/stream-bench.sh STOP_FLINK_PROCESSING > /dev/null 2>&1 &"
+  echo "Stopping flink yarn topology"
+}
+
 # Spark start and stop
 # Check if we have slave config file
 start_spark_cluster() {
@@ -201,7 +302,18 @@ stop_spark_topology() {
 }
 
 start_ss_spark_topology() {
-  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master spark://localhost:7077 --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --class spark.benchmark.dstream.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-dstream-benchmarks/target/spark-dstream-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  echo "Starting ss topology"
+  JARS="/home/schintap/ss_jars/com.github.luben_zstd-jni-1.4.4-3.jar,\
+/home/schintap/ss_jars/org.apache.commons_commons-pool2-2.6.2.jar,\
+/home/schintap/ss_jars/org.apache.kafka_kafka-clients-2.4.1.jar,\
+/home/schintap/ss_jars/org.apache.spark_spark-sql-kafka-0-10_2.12-3.0.0.jar,\
+/home/schintap/ss_jars/org.apache.spark_spark-token-provider-kafka-0-10_2.12-3.0.0.jar,\
+/home/schintap/ss_jars/org.lz4_lz4-java-1.7.1.jar,\
+/home/schintap/ss_jars/org.slf4j_slf4j-api-1.7.30.jar,\
+/home/schintap/ss_jars/org.spark-project.spark_unused-1.0.0.jar,\
+/home/schintap/ss_jars/org.xerial.snappy_snappy-java-1.1.7.5.jar"
+  #ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master spark://localhost:7077 -jars $JARS --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --conf spark.executor.extraJavaOptions=-XX:+TraceClassUnloading --conf spark.driver.extraJavaOptions=-XX:+TraceClassUnloading --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master spark://localhost:7077 -jars $JARS --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --conf spark.executor.extraJavaOptions=-XX:+TraceClassUnloading --conf spark.driver.extraJavaOptions=-XX:+TraceClassUnloading --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
 }
 
 stop_ss_spark_topology() {
@@ -267,6 +379,10 @@ start_load() {
   then
     stop_flink_topology
     start_flink_topology
+  elif [[ "FLINK_YARN" = "$2" ]];
+  then
+    stop_flink_yarn_topology
+    start_flink_yarn_topology
   elif [[ "SPARK" = "$2" ]];
   then
     stop_spark_topology
@@ -407,6 +523,7 @@ stop_and_clean() {
 run_streaming_job() {
   start_load $1 $2
   sleep $TEST_TIME
+  #sleep 300
   stop_and_clean $1 $2
   #if [[ "STORM" = $2 ]];
   #then
@@ -429,12 +546,16 @@ run() {
     #setup_configs
     #setup_lein
     #collect_ysar_stats 50000 STORM $ADMIN_HOST
-    #start_spark_topology
+    setup_zookeeper_quorum
+    setup_yarn_cluster
     setup_zookeeper_quorum
     setup_kafka_instances
     start_redis
     start_zookeeper_quorum
     start_kafka_instances
+  elif [[ "SSH_TEST" = "$OP" ]];
+  then
+    test_ssh
   elif [[ "STOP_LOAD" = "$OP" ]];
   then
     echo "Stopping Load"
@@ -524,6 +645,34 @@ run() {
     run_streaming_job 150000 $OP
     run_streaming_job 170000 $OP
     stop_flink_cluster
+  elif [[ "RUN_FLINK_YARN_SUITE" = "$OP" ]];
+  then
+    echo "Running Flink on Yarn benchmark suite..."
+    OP="FLINK_YARN"
+    start_yarn_cluster
+    run_streaming_job 50000 $OP
+    #run_streaming_job 70000 $OP
+    #run_streaming_job 90000 $OP
+    #run_streaming_job 110000 $OP
+    #run_streaming_job 130000 $OP
+    #run_streaming_job 135000 $OP
+    #run_streaming_job 150000 $OP
+    #run_streaming_job 170000 $OP
+    stop_yarn_cluster
+  elif [[ "RUN_SPARK_YARN_SUITE" = "$OP" ]];
+  then
+    echo "Running Spark on Yarn benchmark suite..."
+    OP="SPARK"
+    start_yarn_cluster
+    run_streaming_job 50000 $OP
+    run_streaming_job 70000 $OP
+    run_streaming_job 90000 $OPZ
+    run_streaming_job 110000 $OP
+    run_streaming_job 130000 $OP
+    run_streaming_job 135000 $OP
+    run_streaming_job 150000 $OP
+    run_streaming_job 170000 $OP
+    stop_yarn_cluster
   elif [[ "RUN_SPARK_SUITE" = "$OP" ]];
   then
     echo "Running Spark benchmark suite..."
@@ -583,6 +732,7 @@ run() {
    stop_flink_cluster
   elif [[ "STOP_ALL" = "$OP" ]];
   then
+    stop_yarn_cluster
     stop_kafka_instances
     stop_zookeeper_quorum
     stop_redis
@@ -592,7 +742,8 @@ run() {
     echo "Storm -> sh setup_cluster.sh RUN_TRIDENT_STORM_SUITE"
     echo "Spark -> sh setup_cluster.sh RUN_SPARK_SUITE"
     echo "SS Spark -> sh setup_cluster.sh RUN_SS_SPARK_SUITE"
-    echo "Flink -> sh setup_cluster.sh RUN_STORM_SUITE"
+    echo "Flink -> sh setup_cluster.sh RUN_FLINK_SUITE"
+    echo "Flink on Yarn -> sh setup_cluster.sh RUN_FLINK_YARN_SUITE"
     echo "Beam Flink -> sh setup_cluster.sh RUN_FLINK_BEAM_SUITE"
     echo "Beam Spark -> sh setup_cluster.sh RUN_SPARK_BEAM_SUITE"
     echo "Dryrun to test setup, this runs all frameworks at 50000 events/s -> sh setup_cluster.sh DRYRUN"
