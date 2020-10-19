@@ -34,7 +34,13 @@
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
+	    <artifactId>jedis</artifactId>
+	    <exclusions>
+              <exclusion>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-pool2</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>

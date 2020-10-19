@@ -8,7 +8,7 @@ HADOOP_HOME=/home/schintap/hadoop-2.8.3
 HADOOP_PREFIX=$HADOOP_HOME
 SCALA_SUB_VERSION=${SCALA_SUB_VERSION:-"11"}
 STORM_VERSION=${STORM_VERSION:-"2.2.0"}
-FLINK_VERSION=${FLINK_VERSION:-"1.10.1"}
+FLINK_VERSION=${FLINK_VERSION:-"1.11.0"}
 SPARK_VERSION=${SPARK_VERSION:-"3.0.0"}
 HADOOP_FLINK_BUNDLE_VERSION=${HADOOP_VERSION:-"2.8.3-0.10"}
 YJAVA_HOME=${YJAVA_HOME:-"/home/y/share/yjava_jdk/java"}
@@ -57,10 +57,10 @@ setup_lein() {
 }
 
 setup_yarn_cluster() {
-  zip -r ./hadoop-2.8.3.zip ./hadoop-2.8.3
+  #zip -r ./hadoop-2.8.3.zip ./hadoop-2.8.3
   for i in {0..4};
   do
-     scp ./hadoop-2.8.3.zip stbl1230n0$i.blue.ygrid.yahoo.com:~
+     #scp ./hadoop-2.8.3.zip stbl1230n0$i.blue.ygrid.yahoo.com:~
      scp ./hadoop.sh stbl1230n0$i.blue.ygrid.yahoo.com:~
      ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'sudo mv ~/hadoop.sh /etc/profile.d/'
      ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n0$i.blue.ygrid.yahoo.com 'sudo chmod 777 /etc/profile.d/hadoop.sh'
@@ -93,6 +93,7 @@ stop_yarn_cluster() {
   #done
   ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup $HADOOP_PREFIX/sbin/stop-yarn.sh && sleep 10 > /dev/null &"
   ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com "nohup $HADOOP_HOME/sbin/yarn-daemon.sh --config $HADOOP_HOME/etc/hadoop stop resourcemanager && sleep 10 > /dev/null &"
+
 
 }
 
@@ -252,21 +253,52 @@ stop_flink_topology() {
 
 start_flink_yarn_topology() {
   echo "Starting flink yarn topology"
-  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME nohup $FLINK_DIR/bin/bin/yarn-session.sh -jm 1024m -tm 384000m > /dev/null 2>&1 &"
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/yarn-session.sh -jm 1024m -tm 374000m > /dev/null 2>&1 &"
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster -ys 72 -yjm 1024m -ytm 374000m $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE > /dev/null 2>&1 &"
-  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster -ys 72 -yjm 1024m -ytm 384000m $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE"
-  sleep 100
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/yarn-session.sh -jm 1024m -tm 374000m"
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/yarn-session.sh -jm 1024m -tm 374000m > /dev/null 2>&1 &"
+  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster -ys 144 -yjm 1024m -ytm 374000m $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE > /dev/null 2>&1 &"
+  sleep 30
+}
+
+start_spark_yarn_topology() {
+  echo "Starting spark on yarn topology"
+  echo "Starting ss topology"
+   JARS="/tmp/ss_jars/com.github.luben_zstd-jni-1.4.4-3.jar,/tmp/ss_jars/org.apache.commons_commons-pool2-2.6.2.jar,/tmp/ss_jars/org.apache.kafka_kafka-clients-2.4.1.jar,/tmp/ss_jars/org.apache.spark_spark-token-provider-kafka-0-10_2.12-3.0.0.jar,/tmp/ss_jars/org.apache.spark_spark-sql-kafka-0-10_2.12-3.0.0.jar,/tmp/ss_jars/org.spark-project.spark_unused-1.0.0.jar,/tmp/ss_jars/org.slf4j_slf4j-api-1.7.30.jar,/tmp/ss_jars/org.lz4_lz4-java-1.7.1.jar,/tmp/ss_jars/org.xerial.snappy_snappy-java-1.1.7.5.jar"
+  #ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CONF_DIR=/home/schintap/hadoop-2.8.3/etc/hadoop HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $SPARK_DIR/bin/spark-submit --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream --master yarn --deploy-mode cluster --num-executors 1 --conf spark.executor.memory=340000m --conf spark.executor.cores=72 --jars $JARS $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+   ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_HOME=/home/schintap/hadoop-2.8.3 HADOOP_CONF_DIR=/home/schintap/hadoop-2.8.3/etc/hadoop HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $SPARK_DIR/bin/spark-submit --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream --master yarn --deploy-mode cluster --num-executors 1 --conf spark.executor.memory=340000m --conf spark.executor.cores=72 --conf spark.driver.extraJavaOptions='-XX:+AggressiveOpts -XX:+UnlockDiagnosticVMOptions -XX:+UnlockExperimentalVMOptions -XX:+TraceClassLoading' --conf spark.executor.extraJavaOptions='-XX:+AggressiveOpts -XX:+UnlockDiagnosticVMOptions -XX:+UnlockExperimentalVMOptions -XX:+TraceClassLoading' --jars $JARS $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  #ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master spark://localhost:7077 -jars $JARS --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --conf spark.executor.extraJavaOptions=-XX:+TraceClassUnloading --conf spark.driver.extraJavaOptions=-XX:+TraceClassUnloading --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  #ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master yarn -jars $JARS --conf spark.executor.memory=384000m --conf spark.executor.cores=72 --conf spark.executor.extraJavaOptions=-XX:+TraceClassUnloading --conf spark.driver.extraJavaOptions=-XX:+TraceClassUnloading --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  #ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "nohup $SPARK_DIR/bin/spark-submit --master yarn -jars $JARS --num-executors 1 --conf spark.executor.memory=374000m --conf spark.executor.cores=72 --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE > /dev/null 2>&1 &"
+  sleep 30
 }
 
 test_ssh() {
-   ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com 'nohup rm -rf ~/hadoop-2.8.3'
+    OP="SPARK_YARN"
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 50000 $OP worker1
+   #start_flink_yarn_topology
+   #start_yarn_cluster
+   #JARS="/tmp/ss_jars/com.github.luben_zstd-jni-1.4.4-3.jar,/tmp/ss_jars/org.apache.commons_commons-pool2-2.6.2.jar,/tmp/ss_jars/org.apache.kafka_kafka-clients-2.4.1.jar,/tmp/ss_jars/org.apache.spark_spark-token-provider-kafka-0-10_2.12-3.0.0.jar,/tmp/ss_jars/org.apache.spark_spark-sql-kafka-0-10_2.12-3.0.0.jar,/tmp/ss_jars/org.spark-project.spark_unused-1.0.0.jar,/tmp/ss_jars/org.slf4j_slf4j-api-1.7.30.jar,/tmp/ss_jars/org.lz4_lz4-java-1.7.1.jar,/tmp/ss_jars/org.xerial.snappy_snappy-java-1.1.7.5.jar"
+
+
+   #ssh -o StrictHostKeyChecking=no `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_HOME=/home/schintap/hadoop-2.8.3 HADOOP_CONF_DIR=/home/schintap/hadoop-2.8.3/etc/hadoop HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $SPARK_DIR/bin/spark-submit --class spark.benchmark.structuredstreaming.KafkaRedisSSContinuousAdvertisingStream --master yarn --deploy-mode cluster --num-executors 1 --conf spark.executor.memory=340000m --conf spark.executor.cores=72 --jars $JARS $ROOT/spark-ss-benchmarks/target/spark-ss-benchmarks-0.1.0.jar $CONF_FILE"
+
+   #stop_yarn_cluster
+   #ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n01.blue.ygrid.yahoo.com 'nohup rm -rf ~/hadoop-2.8.3'
    #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME HADOOP_CLASSPATH=$HADOOP_CLASSPATH nohup $FLINK_DIR/bin/flink run -m yarn-cluster -ys 72 -yjm 1024m -ytm 374000m $ROOT/flink-benchmarks/target/flink-benchmarks-0.1.0.jar --confPath $CONF_FILE"
 }
 
 stop_flink_yarn_topology() {
-  #ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME FLINK_DIR=$FLINK_DIR nohup sh $ROOT/stream-bench.sh STOP_FLINK_PROCESSING > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "JAVA_HOME=$YJAVA_HOME FLINK_DIR=$FLINK_DIR nohup sh $ROOT/stream-bench.sh STOP_FLINK_YARN_PROCESSING > /dev/null 2>&1 &"
+  sleep 30
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup killall java && killall java && sleep 10 > /dev/null &"
   echo "Stopping flink yarn topology"
+}
+
+stop_spark_yarn_topology() {
+  ssh -o StrictHostKeyChecking=no -A `whoami`@stbl1230n00.blue.ygrid.yahoo.com "nohup killall java && killall java && sleep 10 > /dev/null &"
+  echo "Stopping spark yarn topology"
 }
 
 # Spark start and stop
@@ -383,6 +415,10 @@ start_load() {
   then
     stop_flink_yarn_topology
     start_flink_yarn_topology
+  elif [[ "SPARK_YARN" = "$2" ]];
+  then
+    stop_spark_yarn_topology
+    start_spark_yarn_topology
   elif [[ "SPARK" = "$2" ]];
   then
     stop_spark_topology
@@ -401,7 +437,7 @@ start_load() {
     start_beam_spark_topology
   fi
 
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mkdir -p ~/results/$2/$1 > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mkdir -p ~/results/$2/$1/$3 > /dev/null 2>&1 &"
 
   echo "Generating $1 events/sec"
   # Lets have five producers
@@ -479,6 +515,16 @@ stop_and_clean() {
     sleep 120
     echo "Stopping Flink topology and clean up"
     stop_flink_topology
+  elif [[ "FLINK_YARN" = "$2" ]];
+  then
+    sleep 120
+    echo "Stopping Flink Yarn topology and clean up"
+    stop_flink_yarn_topology
+  elif [[ "SPARK_YARN" = "$2" ]];
+  then
+    sleep 120
+    echo "Stopping Spark Yarn topology and clean up"
+    stop_spark_yarn_topology
   elif [[ "SPARK" = "$2" ]];
   then
     sleep 120
@@ -516,15 +562,16 @@ stop_and_clean() {
   start_kafka_instances
 
   # move results for graphs seen/updated to results/s<framework>/load/seen,updated
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mv $ROOT/data/seen.txt ~/results/$2/$1/  > /dev/null 2>&1 &"
-  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mv $ROOT/data/updated.txt ~/results/$2/$1/ > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mv $ROOT/data/seen.txt ~/results/$2/$1/$3/  > /dev/null 2>&1 &"
+  ssh -o StrictHostKeyChecking=no -A `whoami`@$ADMIN_HOST "nohup mv $ROOT/data/updated.txt ~/results/$2/$1/$3/ > /dev/null 2>&1 &"
 }
 
 run_streaming_job() {
-  start_load $1 $2
+  echo "$1:$2:$3"
+  start_load $1 $2 $3
   sleep $TEST_TIME
   #sleep 300
-  stop_and_clean $1 $2
+  stop_and_clean $1 $2 $3
   #if [[ "STORM" = $2 ]];
   #then
   #  ADMIN_HOST="stbl1230n01.blue.ygrid.yahoo.com"
@@ -539,6 +586,7 @@ collect_ysar_stats() {
 
 run() {
   OP=$1
+  WRKS=$2
   if [[ "SETUP" = "$OP" ]];
   then
     echo "Setup initialized"
@@ -649,29 +697,87 @@ run() {
   then
     echo "Running Flink on Yarn benchmark suite..."
     OP="FLINK_YARN"
+    setup_yarn_cluster
     start_yarn_cluster
-    run_streaming_job 50000 $OP
-    #run_streaming_job 70000 $OP
-    #run_streaming_job 90000 $OP
-    #run_streaming_job 110000 $OP
-    #run_streaming_job 130000 $OP
-    #run_streaming_job 135000 $OP
-    #run_streaming_job 150000 $OP
-    #run_streaming_job 170000 $OP
+    run_streaming_job 50000 $OP $WRKS
     stop_yarn_cluster
-  elif [[ "RUN_SPARK_YARN_SUITE" = "$OP" ]];
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 70000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 90000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 110000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 130000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 135000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 150000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 170000 $OP $WRKS
+    stop_yarn_cluster
+    elif [[ "RUN_SPARK_YARN_SUITE" = "$OP" ]];
   then
     echo "Running Spark on Yarn benchmark suite..."
-    OP="SPARK"
+    OP="SPARK_YARN"
+    setup_yarn_cluster
     start_yarn_cluster
-    run_streaming_job 50000 $OP
-    run_streaming_job 70000 $OP
-    run_streaming_job 90000 $OPZ
-    run_streaming_job 110000 $OP
-    run_streaming_job 130000 $OP
-    run_streaming_job 135000 $OP
-    run_streaming_job 150000 $OP
-    run_streaming_job 170000 $OP
+    run_streaming_job 50000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 70000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 90000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 110000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 130000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 135000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 150000 $OP $WRKS
+    stop_yarn_cluster
+
+    setup_yarn_cluster
+    start_yarn_cluster
+    run_streaming_job 170000 $OP $WRKS
     stop_yarn_cluster
   elif [[ "RUN_SPARK_SUITE" = "$OP" ]];
   then
@@ -744,6 +850,7 @@ run() {
     echo "SS Spark -> sh setup_cluster.sh RUN_SS_SPARK_SUITE"
     echo "Flink -> sh setup_cluster.sh RUN_FLINK_SUITE"
     echo "Flink on Yarn -> sh setup_cluster.sh RUN_FLINK_YARN_SUITE"
+    echo "Flink on Yarn -> sh setup_cluster.sh RUN_SPARK_YARN_SUITE"
     echo "Beam Flink -> sh setup_cluster.sh RUN_FLINK_BEAM_SUITE"
     echo "Beam Spark -> sh setup_cluster.sh RUN_SPARK_BEAM_SUITE"
     echo "Dryrun to test setup, this runs all frameworks at 50000 events/s -> sh setup_cluster.sh DRYRUN"
@@ -759,7 +866,7 @@ then
 else
   while [[ $# -gt 0 ]];
   do
-    run "$1"
+    run "$1" "$2"
     shift
   done
 fi

@@ -112,6 +112,7 @@ object KafkaRedisSSContinuousAdvertisingStream {
         }
       }
       .trigger(Trigger.Continuous(continuosTriggerTime))
+      //.trigger(Trigger.ProcessingTime("2 seconds"))
       .start()
 
     query.awaitTermination()

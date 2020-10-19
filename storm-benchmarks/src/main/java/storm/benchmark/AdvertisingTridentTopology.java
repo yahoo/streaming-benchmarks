@@ -176,6 +176,8 @@ public class AdvertisingTridentTopology {
                                                                         String kafkaTopic) {
         return KafkaTridentSpoutConfig.builder(bootstrapServers, kafkaTopic)
                 .setProp(ConsumerConfig.GROUP_ID_CONFIG, "storm-trident")
+                .setProp(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, 1024 * 1024 * 1024)
+                .setProp(ConsumerConfig.RECEIVE_BUFFER_CONFIG, 1024 * 1024* 1024)
                 .setProp("key.deserializer", org.apache.kafka.common.serialization.StringDeserializer.class)
                 .setProp("value.deserializer", org.apache.kafka.common.serialization.StringDeserializer.class)
                 .setFirstPollOffsetStrategy(EARLIEST)
@@ -210,6 +212,7 @@ public class AdvertisingTridentTopology {
         String redisServerHost = (String)commonConfig.get("redis.host");
         String kafkaTopic = (String)commonConfig.get("kafka.topic");
         int kafkaPartitions = ((Number)commonConfig.get("kafka.partitions")).intValue();
+        int maxFetchBytes = ((Number)commonConfig.get("kafka.partitions")).intValue();
         int workers = ((Number)commonConfig.get("storm.workers")).intValue();
         int ackers = ((Number)commonConfig.get("storm.ackers")).intValue();
         int cores = ((Number)commonConfig.get("process.cores")).intValue();
