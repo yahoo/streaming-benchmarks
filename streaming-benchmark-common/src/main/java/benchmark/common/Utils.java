@@ -26,6 +26,22 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 public class Utils {
     private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
+    public static String joinHosts(List<String> hosts, String port) {
+        String joined = null;
+        for(String s : hosts) {
+            if(joined == null) {
+                joined = "";
+            }
+            else {
+                joined += ",";
+            }
+
+            joined += s + ":" + port;
+        }
+        return joined;
+    }
+
+
     public static Map findAndReadConfigFile(String name, boolean mustExist) {
         InputStream in = null;
         boolean confFileEmpty = false;

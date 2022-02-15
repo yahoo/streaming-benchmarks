@@ -54,6 +54,11 @@ public class CampaignProcessorCommon {
         new Thread(flusher).start();
     }
 
+    public void close() {
+        jedis.close();
+        flush_jedis.close();
+    }
+
     public void execute(String campaign_id, String event_time) {
         Long timeBucket = Long.parseLong(event_time) / time_divisor;
         Window window = getWindow(timeBucket, campaign_id);

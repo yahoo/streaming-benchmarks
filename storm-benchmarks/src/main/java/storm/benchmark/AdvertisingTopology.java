@@ -4,11 +4,12 @@
  */
 package storm.benchmark;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.storm.Config;
 import org.apache.storm.LocalCluster;
 import org.apache.storm.StormSubmitter;
-import org.apache.storm.spout.SchemeAsMultiScheme;
-import org.apache.storm.spout.SpoutOutputCollector;
+import org.apache.storm.kafka.spout.KafkaSpout;
+import org.apache.storm.kafka.spout.KafkaSpoutConfig;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -17,12 +18,10 @@ import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
-//import backtype.storm.utils.Utils;
 import benchmark.common.Utils;
 import benchmark.common.advertising.CampaignProcessorCommon;
 import benchmark.common.advertising.RedisAdCampaignCache;
 import java.util.Map;
-import java.util.UUID;
 import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -30,11 +29,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
-import redis.clients.jedis.Jedis;
-import org.apache.storm.kafka.KafkaSpout;
-import org.apache.storm.kafka.SpoutConfig;
-import org.apache.storm.kafka.StringScheme;
-import org.apache.storm.kafka.ZkHosts;
+
+import static org.apache.storm.kafka.spout.FirstPollOffsetStrategy.EARLIEST;
 
 /**
  * This is a basic example of a Storm topology.
@@ -52,7 +48,9 @@ public class AdvertisingTopology {
         @Override
         public void execute(Tuple tuple) {
 
-            JSONObject obj = new JSONObject(tuple.getString(0));
+            // Tuple contains "topic", "partition", "offset", "key", and "value"
+            // We extract the value for our processing
+            JSONObject obj = new JSONObject(tuple.getString(4));
             _collector.emit(tuple, new Values(obj.getString("user_id"),
                                               obj.getString("page_id"),
                                               obj.getString("ad_id"),
@@ -180,19 +178,14 @@ public class AdvertisingTopology {
         }
     }
 
-    private static String joinHosts(List<String> hosts, String port) {
-        String joined = null;
-        for(String s : hosts) {
-            if(joined == null) {
-                joined = "";
-            }
-            else {
-                joined += ",";
-            }
-
-            joined += s + ":" + port;
-        }
-        return joined;
+    private static KafkaSpoutConfig<String, String> getKafkaSpoutConfig(String bootstrapServers,
+                                                                        String kafkaTopic) {
+        return KafkaSpoutConfig.builder(bootstrapServers, kafkaTopic)
+                .setProp(ConsumerConfig.GROUP_ID_CONFIG, "storm-benchmark")
+                .setProp("key.deserializer", org.apache.kafka.common.serialization.StringDeserializer.class)
+                .setProp("value.deserializer", org.apache.kafka.common.serialization.StringDeserializer.class)
+                .setFirstPollOffsetStrategy(EARLIEST)
+                .build();
     }
 
     public static void main(String[] args) throws Exception {
@@ -203,11 +196,25 @@ public class AdvertisingTopology {
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(opts, args);
+        // TODO: Looks like jar submission for storm topology does not allow
+        // -conf, need to fix this, for now just a work around
         String configPath = cmd.getOptionValue("conf");
+
+        // Temporary work around
+        try {
+            if (configPath == null) {
+                // Assuming the second arg has the conf file
+                configPath = args[1];
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            System.exit(1);
+        }
         Map commonConfig = Utils.findAndReadConfigFile(configPath, true);
 
-        String zkServerHosts = joinHosts((List<String>)commonConfig.get("zookeeper.servers"),
-                                         Integer.toString((Integer)commonConfig.get("zookeeper.port")));
+        String kafkaBrokers = Utils.joinHosts((List<String>)commonConfig.get("kafka.brokers"),
+                                         Integer.toString((Integer)commonConfig.get("kafka.port")));
+
         String redisServerHost = (String)commonConfig.get("redis.host");
         String kafkaTopic = (String)commonConfig.get("kafka.topic");
         int kafkaPartitions = ((Number)commonConfig.get("kafka.partitions")).intValue();
@@ -216,13 +223,8 @@ public class AdvertisingTopology {
         int cores = ((Number)commonConfig.get("process.cores")).intValue();
         int parallel = Math.max(1, cores/7);
 
-        ZkHosts hosts = new ZkHosts(zkServerHosts);
 
-
-
-        SpoutConfig spoutConfig = new SpoutConfig(hosts, kafkaTopic, "/" + kafkaTopic, UUID.randomUUID().toString());
-        spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
-        KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
+        KafkaSpout kafkaSpout = new KafkaSpout(getKafkaSpoutConfig(kafkaBrokers, kafkaTopic));
 
         builder.setSpout("ads", kafkaSpout, kafkaPartitions);
         builder.setBolt("event_deserializer", new DeserializeBolt(), parallel).shuffleGrouping("ads");

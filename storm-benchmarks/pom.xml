@@ -23,11 +23,13 @@
         </dependency>
         <dependency>
             <groupId>org.apache.storm</groupId>
-            <artifactId>storm-kafka</artifactId>
+            <artifactId>storm-kafka-client</artifactId>
+	        <version>${storm.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${scala.binary.version}</artifactId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
