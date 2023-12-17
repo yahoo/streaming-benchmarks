@@ -18,7 +18,7 @@
     <repositories>
         <repository>
             <id>org.sedis</id>
-            <url>http://pk11-scratch.googlecode.com/svn/trunk</url>
+            <url>https://pk11-scratch.googlecode.com/svn/trunk</url>
         </repository>
     </repositories>
 
